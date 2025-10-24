@@ -1,7 +1,6 @@
 package org.example.app;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -9,6 +8,7 @@ import org.example.io.*;
 import org.example.loader.*;
 import org.example.model.*;
 import org.example.service.*;
+import org.example.error.AppException;
 
 // import java.io.IOException;
 // import java.security.NoSuchAlgorithmException;
@@ -21,23 +21,43 @@ import org.example.service.*;
 
 public class DictionaryAttackAppRunner {
 
-    private final Loader userLoader;
-    private final Loader dictLoader;
-    private final Hasher hasher;
-    private final ResultWriter resultWriter;
+    private final Loader<User> userLoader;
+    private final Loader<String> dictLoader;
+    private static LinkedList<CrackTask> taskQueue = new LinkedList<>();
+    private static HashMap<String, User> users = new HashMap<>();
+    private static int passwordsFound = 0;
+    private static int hashesComputed = 0;
 
-    public DictionaryAttackAppRunner(Loader userLoader, Loader dictLoader, Hasher hasher, ResultWriter resultWriter) {
+    public DictionaryAttackAppRunner(Loader<User> userLoader, Loader<String> dictLoader, Hasher hasher, ResultWriter<User> resultWriter) {
         this.userLoader = userLoader;
         this.dictLoader = dictLoader;
-        this.hasher = hasher;
-        this.resultWriter = resultWriter;
+
     }
 
-    public void run(String usersPath, String dictPath, String outputPath) throws IOException {
+    public void run(String usersPath, String dictPath, String outputPath) throws IOException, AppException {
+        userLoader.load(usersPath);
+        dictLoader.load(dictPath);
+    }
+    
+    private static List<String> loadDictionary(String path) throws AppException {
+        DictionaryLoader loader = new DictionaryLoader();
+        return loader.load(path);
+    }
+    
+    private static void loadUsers(String path) throws AppException {
+        UserLoader loader = new UserLoader();
+        List<User> userList = loader.load(path);
+        users.clear();
+        for (User user : userList) {
+            users.put(user.getUsername(), user);
+        }
+    }
 
-        long start = System.currentTimeMillis();
-        List<User> users = userLoader.load(usersPath);
-        List<String> dict = dictLoader.load(dictPath);
+    
+    private static void writeCrackedPasswordsToCSV(String path) throws AppException {
+        CsvResultWriter writer = new CsvResultWriter();
+        UserLoader userLoader = new UserLoader();
+        writer.write(path, userLoader);
     }
     
     public static void runProgram(String[] args) throws AppException {
@@ -57,7 +77,7 @@ public class DictionaryAttackAppRunner {
 
         for (User user : users.values()) {
             for (String password : allPasswords) {
-                taskQueue.add(new CrackTask(user.username, password));
+                taskQueue.add(new CrackTask(user.getUsername(), password));
             }
         }
 
@@ -87,7 +107,7 @@ public class DictionaryAttackAppRunner {
             writeCrackedPasswordsToCSV(passwordsPath);
         }
 
-    } catch (IOException | NoSuchAlgorithmException e) {
+    } catch (AppException e) {
         throw new AppException("Program failed: " + e.getMessage(), e);
     }
 }

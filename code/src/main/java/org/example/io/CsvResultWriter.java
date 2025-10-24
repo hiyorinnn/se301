@@ -1,7 +1,6 @@
 package org.example.io;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +17,7 @@ public class CsvResultWriter implements ResultWriter<User> {
     private static final String HEADER = "user_name,hashed_password,plain_password\n";
 
     @Override
-    public void write(String filePath, Loader<User> userLoader) {
+    public void write(String filePath, Loader<User> userLoader) throws AppException {
         List<User> users = userLoader.load(filePath);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, StandardCharsets.UTF_8), BUFFER_SIZE)) {

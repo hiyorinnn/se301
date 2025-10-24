@@ -1,10 +1,10 @@
 package org.example.app;
 
-import java.util.*;
 import java.io.IOException;
 import org.example.io.*;
 import org.example.loader.*;
 import org.example.service.*;
+import org.example.model.User;
 
 // import java.io.*;
 // import java.nio.file.*;
@@ -29,10 +29,10 @@ public class DictionaryAttackApp {
             System.exit(2);
         }
         
-        Loader userLoader = new UserLoader();
-        Loader dictLoader = new DictionaryLoader();
-        Hasher hasher = new Hasher();
-        ResultWriter resultWriter = new ResultWriter();
+        Loader<User> userLoader = new UserLoader();
+        Loader<String> dictLoader = new DictionaryLoader();
+        Hasher hasher = new Sha256Hasher();
+        ResultWriter<User> resultWriter = new CsvResultWriter();
 
         DictionaryAttackAppRunner runner = new DictionaryAttackAppRunner(userLoader, dictLoader, hasher, resultWriter);
 
