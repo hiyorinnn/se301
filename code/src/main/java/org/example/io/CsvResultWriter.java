@@ -26,7 +26,7 @@ public class CsvResultWriter implements ResultWriter<User> {
 
             // Stream, filter, and map to CSV lines
             List<String> lines = users.stream()
-                                      .filter(u -> u.isFound)
+                                      .filter(u -> u.isFound())
                                       .map(u -> u.getUsername() + "," + u.getHashedPassword() + "," + u.getFoundPassword())
                                       .collect(Collectors.toList());
 

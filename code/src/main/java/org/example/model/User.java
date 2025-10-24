@@ -10,4 +10,20 @@ public class User {
         this.username = username;
         this.hashedPassword = hashedPassword;
     }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public String getHashedPassword() {
+        return this.hashedPassword; 
+    }
+
+    public String getFoundPassword() {
+        return this.foundPassword;
+    }
+
+    public boolean isFound() {
+        return this.isFound;
+    }
 }
