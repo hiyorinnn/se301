@@ -1,65 +1,26 @@
 package org.example.model;
 
-import java.util.*;
-import org.example.service.*;
+import org.example.service.Hasher;
+import org.example.error.AppException;
 
 public class CrackTask {
-    
-    String username;
-    String password;
-    
-    private static Map<String, User> users;
-    private static List<String> cracked;
-    private static Map<String, String> reverseLookupCache;
-    private static int passwordsFound = 0;
-    private static int hashesComputed = 0;
-    private static Hasher hasher = new Sha256Hasher();
+    private final User user;
+    private final String candidate;
+    private final Hasher hasher;
 
-    public static int getPasswordsFound() { 
-        return passwordsFound; 
+    public CrackTask(User user, String candidate, Hasher hasher) {
+        this.user = user;
+        this.candidate = candidate;
+        this.hasher = hasher;
     }
 
-
-    public static int getHashesComputed() { 
-        return hashesComputed; 
-    }
-
-    public CrackTask(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
-    
-    // Static methods to set references
-    public static void setUsers(Map<String, User> usersMap) {
-        users = usersMap;
-    }
-    
-    public static void setCracked(List<String> crackedList) {
-        cracked = crackedList;
-    }
-    
-    public static void setReverseLookupCache(Map<String, String> cache) {
-        reverseLookupCache = cache;
-    }
-
-    public void execute() {
-        User user = users.get(username);
-        if (user == null || user.isFound) return;
-
-        try {
-            String hash = hasher.hash(password);
-            hashesComputed++;
-            reverseLookupCache.put(password, hash);
-
-            if (hash.equals(user.hashedPassword)) {
-                cracked.add(username + ": " + password);
-                user.isFound = true;
-                user.foundPassword = password;
-                passwordsFound++;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+    public boolean execute() throws AppException {
+        if (user.isFound()) return false;
+        String hash = hasher.hash(candidate);
+        if (hash.equals(user.getHashedPassword())) {
+            user.markFound(candidate);
+            return true;
         }
+        return false;
     }
 }

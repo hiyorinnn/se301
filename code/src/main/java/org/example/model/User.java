@@ -1,29 +1,24 @@
 package org.example.model;
 
 public class User {
-    String username;
-    String hashedPassword;
-    boolean isFound = false;
-    String foundPassword = null;
+    private final String username;
+    private final String hashedPassword;
+    private boolean found = false;
+    private String foundPassword = null;
 
     public User(String username, String hashedPassword) {
         this.username = username;
         this.hashedPassword = hashedPassword;
     }
 
-    public String getUsername() {
-        return this.username;
-    }
+    public String getUsername() { return username; }
+    public String getHashedPassword() { return hashedPassword; }
 
-    public String getHashedPassword() {
-        return this.hashedPassword; 
-    }
+    public boolean isFound() { return found; }
+    public String getFoundPassword() { return foundPassword; }
 
-    public String getFoundPassword() {
-        return this.foundPassword;
-    }
-
-    public boolean isFound() {
-        return this.isFound;
+    public void markFound(String plain) {
+        this.found = true;
+        this.foundPassword = plain;
     }
 }

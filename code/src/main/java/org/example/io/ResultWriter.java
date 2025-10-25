@@ -1,8 +1,9 @@
 package org.example.io;
 
-import org.example.error.*;
-import org.example.loader.*;
+import org.example.error.AppException;
+import org.example.model.User;
+import java.util.Collection;
 
-public interface ResultWriter<T> {
-    void write(String path, Loader<T> loadType) throws AppException;
+public interface ResultWriter {
+    void write(String path, Collection<User> users) throws AppException;
 }
