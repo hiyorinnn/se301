@@ -1,16 +1,16 @@
 package org.example.service;
 
+import org.example.error.AppException;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-
-import org.example.error.AppException;
+import java.util.HexFormat;
 
 public class Sha256Hasher implements Hasher {
 
     private static final String ALGORITHM = "SHA-256";
-    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
 
-    // reuse digest
+    // Thread-safe reuse of MessageDigest
     private static final ThreadLocal<MessageDigest> DIGEST = ThreadLocal.withInitial(() -> {
         try {
             return MessageDigest.getInstance(ALGORITHM);
@@ -22,17 +22,11 @@ public class Sha256Hasher implements Hasher {
     @Override
     public String hash(String input) throws AppException {
         try {
-            MessageDigest digest = DIGEST.get();
-            byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            byte[] hashBytes = DIGEST.get().digest(input.getBytes(StandardCharsets.UTF_8));
 
-            char[] hexChars = new char[hashBytes.length * 2];
-            for (int j = 0; j < hashBytes.length; j++) {
-                int v = hashBytes[j] & 0xFF;
-                hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-                hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-            }
+            // Modern, concise hex conversion
+            return HexFormat.of().formatHex(hashBytes);
 
-            return new String(hexChars);
         } catch (RuntimeException e) {
             throw new AppException("SHA-256 hashing failed", e);
         }
