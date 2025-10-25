@@ -3,7 +3,7 @@ package org.example.model;
 import org.example.service.Hasher;
 import org.example.error.AppException;
 
-public class CrackTask {
+public class CrackTask implements ExecutableTask, HashTrackingTask {
     private final User user;
     private final String candidate;
     private final Hasher hasher;

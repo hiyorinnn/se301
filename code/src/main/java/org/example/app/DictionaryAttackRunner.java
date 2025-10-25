@@ -34,7 +34,7 @@ public class DictionaryAttackRunner {
         List<String> dict = dictLoader.load(dictPath);
 
         // Use instance-level structures (no static state)
-        Deque<CrackTask> queue = new ArrayDeque<>();
+        Deque<ExecutableTask> queue = new ArrayDeque<>();
         for (User u : users) {
             for (String pwd : dict) {
                 queue.add(new CrackTask(u, pwd, hasher));
@@ -49,14 +49,17 @@ public class DictionaryAttackRunner {
         System.out.println("Starting attack with " + totalTasks + " total tasks...");
 
         while (!queue.isEmpty()) {
-            CrackTask task = queue.poll();
+            ExecutableTask task = queue.poll();
             try {
                 if (task.execute()) {
                     passwordsFound++;
                 }
 
-                if (task.didHash()) {
-                    hashesComputed++;
+                if (task instanceof HashTrackingTask) {
+                    HashTrackingTask hashTask = (HashTrackingTask) task;
+                    if (hashTask.didHash()) {
+                        hashesComputed++;
+                    }
                 }
                 tasksCompleted++;
             } catch (AppException e) {
