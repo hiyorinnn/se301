@@ -44,6 +44,7 @@ public class DictionaryAttackRunner {
         long totalTasks = queue.size();
         long hashesComputed = 0;
         long passwordsFound = 0;
+        long tasksCompleted = 0;
 
         System.out.println("Starting attack with " + totalTasks + " total tasks...");
 
@@ -53,13 +54,17 @@ public class DictionaryAttackRunner {
                 if (task.execute()) {
                     passwordsFound++;
                 }
-                hashesComputed++;
+
+                if (task.didHash()) {
+                    hashesComputed++;
+                }
+                tasksCompleted++;
             } catch (AppException e) {
                 // In this loop, hashing exceptions are fatal — wrap and rethrow to stop the run.
                 throw new AppException("Hashing failed during execution", e);
             }
 
-            if (hashesComputed % 1000 == 0) {
+            if (tasksCompleted % 1000 == 0 || queue.isEmpty()) {
                 long remaining = queue.size();
                 long completed = totalTasks - remaining;
                 double progress = (double) completed / totalTasks * 100.0;
