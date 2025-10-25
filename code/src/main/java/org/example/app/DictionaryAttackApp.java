@@ -13,7 +13,6 @@ public class DictionaryAttackApp {
             System.exit(2);
         }
 
-        // Create concrete implementations (could be wired by DI framework)
         var userLoader = new UserLoader();
         var dictLoader = new DictionaryLoader();
         var hasher = new Sha256Hasher();
