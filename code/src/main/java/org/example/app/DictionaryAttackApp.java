@@ -1,9 +1,6 @@
 package org.example.app;
 
 import org.example.error.AppException;
-import org.example.loader.*;
-import org.example.service.*;
-import org.example.io.*;
 
 public class DictionaryAttackApp {
 
@@ -14,7 +11,7 @@ public class DictionaryAttackApp {
         }
 
         try {
-            var runner = new AppFactory();
+            var runner = AppFactory.createRunner();
             runner.run(args[0], args[1], args[2]);
         } catch (AppException e) {
             System.err.println("Error: " + e.getMessage());
