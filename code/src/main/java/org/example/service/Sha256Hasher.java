@@ -22,10 +22,19 @@ public class Sha256Hasher implements Hasher {
     @Override
     public String hash(String input) throws AppException {
         try {
-            byte[] hashBytes = DIGEST.get().digest(input.getBytes(StandardCharsets.UTF_8));
+            // Gets a MessageDigest instance that is unique to the current thread
+            MessageDigest md = DIGEST.get();
 
-            // Modern, concise hex conversion
+            // Reset before each use
+            md.reset();
+
+            // Converts the input string (aka pwd from dict list) into a sequence of bytes using the standard UTF-8 encoding.
+            // and performs the hash calculation on those bytes and returns the result as a raw byte array.
+            byte[] hashBytes = md.digest(input.getBytes(StandardCharsets.UTF_8));
+
+            // Modern, concise hex conversion to convert raw array byte
             return HexFormat.of().formatHex(hashBytes);
+
 
         } catch (RuntimeException e) {
             throw new AppException("SHA-256 hashing failed", e);

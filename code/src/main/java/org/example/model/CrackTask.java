@@ -16,6 +16,7 @@ public class CrackTask {
 
     public boolean execute() throws AppException {
         if (user.isFound()) return false;
+
         String hash = hasher.hash(candidate);
         if (hash.equals(user.getHashedPassword())) {
             user.markFound(candidate);

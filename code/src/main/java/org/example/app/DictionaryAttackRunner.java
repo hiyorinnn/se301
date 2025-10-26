@@ -42,13 +42,14 @@ public class DictionaryAttackRunner {
         }
 
         long totalTasks = queue.size();
+        System.out.println("Starting attack with " + totalTasks + " total tasks...");
+
         long hashesComputed = 0;
         long passwordsFound = 0;
 
-        System.out.println("Starting attack with " + totalTasks + " total tasks...");
-
         while (!queue.isEmpty()) {
             CrackTask task = queue.poll();
+
             try {
                 if (task.execute()) {
                     passwordsFound++;
