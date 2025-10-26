@@ -6,10 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1ec91070-822a-4bfd-8246-90b46bf20c77" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/app/DictionaryAttackRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/app/DictionaryAttackRunner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackRunner.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackRunner.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/se301-1.1-SNAPSHOT-jar-with-dependencies.jar" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/se301-1.1-SNAPSHOT-jar-with-dependencies.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/se301-1.1-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/se301-1.1-SNAPSHOT.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
