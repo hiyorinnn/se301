@@ -6,11 +6,10 @@ import org.example.service.*;
 import org.example.io.*;
 import org.example.error.AppException;
 
+import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.*;
 
 public class DictionaryAttackRunner {
 
@@ -19,8 +18,6 @@ public class DictionaryAttackRunner {
     private final Hasher hasher;
     private final ResultWriter resultWriter;
 
-
-    // (?)to-do: Change into di, for more flexibility
     public DictionaryAttackRunner(Loader<User> userLoader,
                                   Loader<String> dictLoader,
                                   Hasher hasher,
@@ -34,89 +31,82 @@ public class DictionaryAttackRunner {
     public void run(String usersPath, String dictPath, String outputPath) throws AppException {
         long start = System.currentTimeMillis();
 
-        // Atomic counters for thread-safe reporting
-        AtomicLong passwordsFound = new AtomicLong(0);
-        AtomicLong usersProcessed = new AtomicLong(0);
+        List<User> users;
+        List<String> dict;
 
-        // 1. Load data
-        List<User> users = userLoader.load(usersPath);
-        List<String> dict = dictLoader.load(dictPath);
+        // Load both files concurrently using virtual threads
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            Future<List<User>> usersFuture = executor.submit(() -> userLoader.load(usersPath));
+            Future<List<String>> dictFuture = executor.submit(() -> dictLoader.load(dictPath));
 
-        long totalUsers = users.size();
+            // Wait for both tasks to complete
+            users = usersFuture.get();
+            dict  = dictFuture.get();
 
-        // 2. Pre-compute all dictionary hashes (M operations instead of N×M)
-        long hashStart = System.currentTimeMillis();
-
-        Map<String, String> hashToPlaintext = buildHashLookupTable(dict);
-
-        long hashDuration = System.currentTimeMillis() - hashStart;
-
-        // 3. Phase 2: Lookup user passwords in pre-computed hash table
-        long lookupStart = System.currentTimeMillis();
-
-        users.parallelStream().forEach(user -> {
-            // Skip if already found
-            if (user.isFound()) {
-                usersProcessed.incrementAndGet();
-                return;
-            }
-
-            // O(1) lookup in the hash table
-            String plainPassword = hashToPlaintext.get(user.getHashedPassword());
-
-            if (plainPassword != null) {
-                synchronized (user) {
-                    user.markFound(plainPassword);
-                }
-                passwordsFound.incrementAndGet();
-            }
-
-            // Update progress
-            long count = usersProcessed.incrementAndGet();
-            if (count % 1000 == 0 || count == totalUsers) {
-                double progress = (double) count / totalUsers * 100.0;
-                String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-                System.out.printf("\r[%s] Progress: %.2f%% | Passwords Found: %d | Users Processed: %d/%d",
-                        ts, progress, passwordsFound.get(), count, totalUsers);
-            }
-
-        });
-
-        long lookupDuration = System.currentTimeMillis() - lookupStart;
-
-        // 4. Print final summary
-        System.out.println();
-        System.out.println("Total passwords found: " + passwordsFound);
-        System.out.println("Total hashes computed: " + hashToPlaintext.size());
-        System.out.println("Total time spent (ms): " + (System.currentTimeMillis() - start));
-
-
-        // 5. Write results
-        resultWriter.write(outputPath, users);
-    }
-
-
-    private Map<String, String> buildHashLookupTable(List<String> dictionary) throws AppException {
-        // Use ConcurrentHashMap for thread-safe parallel insertion
-        Map<String, String> hashToPlaintext = new ConcurrentHashMap<>();
-
-        AtomicLong processed = new AtomicLong(0);
-        long total = dictionary.size();
-
-        try {
-            dictionary.parallelStream().forEach(plaintext -> {
-                try {
-                    String hash = hasher.hash(plaintext);
-                    hashToPlaintext.put(hash, plaintext);
-                } catch (AppException e) {
-                    System.err.println("\nWarning: Failed to hash password '" + plaintext + "': " + e.getMessage());
-                }
-            });
-            System.out.println(); // New line after progress
-        } catch (Exception e) {
-            throw new AppException("Failed to build hash lookup table: " + e.getMessage(), e);
+        } catch (ExecutionException e) {
+            throw new AppException("Failed during concurrent file loading", e.getCause());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new AppException("Loading interrupted", e);
         }
 
-        return hashToPlaintext;
+        Map<String, String> hashToPassword = new HashMap<>();
+        long hashesComputed = 0;
+        long passwordsFound = 0;
+        long totalTasks = dict.size() + users.size();
+
+        System.out.println("Starting attack with " + totalTasks + " total tasks...");
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        // Hash dictionary passwords
+        for (String password : dict) {
+            try {
+                String hash = hasher.hash(password);
+                hashToPassword.put(hash, password);
+                hashesComputed++;
+
+                if (hashesComputed % 1000 == 0) {
+                    long remaining = totalTasks - hashesComputed;
+                    double progress = (double) hashesComputed / totalTasks * 100.0;
+                    String ts = LocalDateTime.now().format(fmt);
+                    System.out.printf(
+                        "\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %-6d   ",
+                        ts, progress, passwordsFound, remaining
+                    );
+                }
+            } catch (AppException e) {
+                throw new AppException("Hashing failed during execution", e);
+            }
+        }
+
+        long tasksCompleted = hashesComputed;
+
+        // Check user hashes against computed dictionary hashes
+        for (User user : users) {
+            String foundPassword = hashToPassword.get(user.getHashedPassword());
+            tasksCompleted++;
+
+            if (foundPassword != null) {
+                user.markFound(foundPassword);
+                passwordsFound++;
+            }
+
+            if (tasksCompleted % 1000 == 0 || tasksCompleted == totalTasks) {
+                long remaining = totalTasks - tasksCompleted;
+                double progress = (double) tasksCompleted / totalTasks * 100.0;
+                String ts = LocalDateTime.now().format(fmt);
+                System.out.printf(
+                    "\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %-6d   ",
+                    ts, progress, passwordsFound, remaining
+                );
+            }
+        }
+
+        System.out.println();
+        System.out.println("Total passwords found: " + passwordsFound);
+        System.out.println("Total hashes computed: " + hashesComputed);
+        System.out.println("Total time spent (ms): " + (System.currentTimeMillis() - start));
+
+        resultWriter.write(outputPath, users);
     }
 }

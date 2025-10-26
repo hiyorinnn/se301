@@ -13,14 +13,8 @@ public class DictionaryAttackApp {
             System.exit(2);
         }
 
-        var userLoader = new UserLoader();
-        var dictLoader = new DictionaryLoader();
-        var hasher = new Sha256Hasher();
-        var resultWriter = new CsvResultWriter();
-
-        var runner = new DictionaryAttackRunner(userLoader, dictLoader, hasher, resultWriter);
-
         try {
+            var runner = new AppFactory();
             runner.run(args[0], args[1], args[2]);
         } catch (AppException e) {
             System.err.println("Error: " + e.getMessage());
