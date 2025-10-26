@@ -37,8 +37,7 @@ public class DictionaryAttackRunner {
         Map<String, String> hashToPassword = new HashMap<>();
         long hashesComputed = 0;
         long passwordsFound = 0;
-        long tasksCompleted = 0;
-        long totalTasks = users.size() * dict.size(); // need to change according to algo?? or maintain same output as original??
+        long totalTasks = dict.size() + users.size();
 
         System.out.println("Starting attack with " + totalTasks + " total tasks...");
 
@@ -48,35 +47,36 @@ public class DictionaryAttackRunner {
                 hashToPassword.put(hash, password);
                 hashesComputed++;
                 
-                tasksCompleted += users.size();
-                
-                if (hashesComputed % 1000 == 0 || hashesComputed == dict.size()) {
-                    long remaining = totalTasks - tasksCompleted;
-                    double progress = (double) tasksCompleted / totalTasks * 100.0;
-                    String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                    System.out.printf("\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %d",
-                            ts, progress, passwordsFound, remaining);
-                }
+            if (hashesComputed % 1000 == 0) {
+                long remaining = totalTasks - hashesComputed;
+                double progress = (double) hashesComputed / totalTasks * 100.0;
+                String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                System.out.printf("\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %-6d   ",
+                        ts, progress, passwordsFound, remaining);
+            }
             } catch (AppException e) {
                 // In this loop, hashing exceptions are fatal — wrap and rethrow to stop the run.
                 throw new AppException("Hashing failed during execution", e);
             }
         }
 
+        long tasksCompleted = hashesComputed;
         for (User user : users) {
             String userHash = user.getHashedPassword();
             String foundPassword = hashToPassword.get(userHash);
+            
+            tasksCompleted++;
             
             if (foundPassword != null) {
                 user.markFound(foundPassword);
                 passwordsFound++;
             }
             
-            if (passwordsFound % 1000 == 0 || passwordsFound == users.size()) {
+            if (tasksCompleted % 1000 == 0 || tasksCompleted == totalTasks) {
                 long remaining = totalTasks - tasksCompleted;
                 double progress = (double) tasksCompleted / totalTasks * 100.0;
                 String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                System.out.printf("\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %d",
+                System.out.printf("\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %-6d   ",
                         ts, progress, passwordsFound, remaining);
             }
         }
