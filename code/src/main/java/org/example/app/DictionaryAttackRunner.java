@@ -9,6 +9,10 @@ import org.example.error.AppException;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class DictionaryAttackRunner {
 
@@ -17,6 +21,8 @@ public class DictionaryAttackRunner {
     private final Hasher hasher;
     private final ResultWriter resultWriter;
 
+
+    // (?)to-do: Change into di, for more flexibility
     public DictionaryAttackRunner(Loader<User> userLoader,
                                   Loader<String> dictLoader,
                                   Hasher hasher,
@@ -29,50 +35,70 @@ public class DictionaryAttackRunner {
 
     public void run(String usersPath, String dictPath, String outputPath) throws AppException {
         long start = System.currentTimeMillis();
+        System.out.println("Starting attack run...");
 
+        // Atomic counters for thread-safe reporting
+        AtomicLong passwordsFound = new AtomicLong(0);
+        AtomicLong usersCompleted = new AtomicLong(0);
+        AtomicLong hashesComputed = new AtomicLong(0); // For total hash count
+
+        // 1. Load data
         List<User> users = userLoader.load(usersPath);
         List<String> dict = dictLoader.load(dictPath);
 
-        // Use instance-level structures (no static state)
-        Deque<CrackTask> queue = new ArrayDeque<>();
-        for (User u : users) {
-            for (String pwd : dict) {
-                queue.add(new CrackTask(u, pwd, hasher));
+        long totalUsers = users.size();
+        long dictSize = dict.size();
+        long totalPossibleHashes = totalUsers * dictSize;
+
+        System.out.println("Loaded " + totalUsers + " users and " + dictSize + " dictionary words.");
+        System.out.println("Total possible hashes: " + totalPossibleHashes);
+        System.out.println("Using " + Runtime.getRuntime().availableProcessors() + " available processors...");
+
+        // 2. Run the attack using a parallel stream over the users.
+        users.parallelStream().forEach(user -> {
+            // If user is already found (e.g., from a previous run), skip.
+            if (user.isFound()) {
+                usersCompleted.incrementAndGet();
+                return;
             }
-        }
 
-        long totalTasks = queue.size();
-        long passwordsFound = 0;
-
-        System.out.println("Starting attack with " + totalTasks + " total tasks...");
-
-        while (!queue.isEmpty()) {
-            CrackTask task = queue.poll();
             try {
-                if (task.execute()) {
-                    passwordsFound++;
+                // 3. For each user, iterate through the entire dictionary
+                for (String passwordGuess : dict) {
+                    hashesComputed.incrementAndGet();
+
+                    // This is the logic from your CrackTask, now inside the stream
+                    // It uses your Hasher.hash() and User.getHashedPassword()
+                    if (hasher.hash(passwordGuess).equals(user.getHashedPassword())) {
+                        user.markFound(passwordGuess); // Use your markFound() method
+                        passwordsFound.incrementAndGet();
+                        break; // Password found, stop checking this user
+                    }
                 }
             } catch (AppException e) {
-                // In this loop, hashing exceptions are fatal — wrap and rethrow to stop the run.
-                throw new AppException("Hashing failed during execution", e);
+                // Log an error for this specific user but continue with others
+                System.err.println("\nFailed to process user " + user.getUsername() + ": " + e.getMessage());
             }
 
-            if (queue.size() % 1000 == 0) {
-                long remaining = queue.size();
-                long completed = totalTasks - remaining;
-                double progress = (double) completed / totalTasks * 100.0;
-                String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                System.out.printf("\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %d",
-                        ts, progress, passwordsFound, remaining);
+            // 4. Update progress
+            long count = usersCompleted.incrementAndGet();
+            if (count % 10 == 0 || count == totalUsers) { // Report progress
+                double progress = (double) count / totalUsers * 100.0;
+                String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+                System.out.printf("\r[%s] Progress: %.2f%% | Passwords Found: %d | Users Processed: %d/%d",
+                        ts, progress, passwordsFound.get(), count, totalUsers);
             }
-        }
+        });
 
-        System.out.println();
-        System.out.println("Total passwords found: " + passwordsFound);
-        System.out.println("Total hashes computed: " + CrackTask.getCount());
-        System.out.println("Total time spent (ms): " + (System.currentTimeMillis() - start));
+        // 5. Print final summary
+        long duration = System.currentTimeMillis() - start;
+        System.out.println(); // Move to a new line after the progress bar
+        System.out.println("Attack finished.");
+        System.out.println("Total passwords found: " + passwordsFound.get());
+        System.out.println("Total hashes computed: " + hashesComputed.get());
+        System.out.println("Total time spent (ms): " + duration);
 
-        // Write results
+        // 6. Write results
         resultWriter.write(outputPath, users);
     }
 }
