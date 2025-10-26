@@ -9,6 +9,7 @@ import org.example.error.AppException;
 import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -39,8 +40,7 @@ public class DictionaryAttackRunner {
 
         // Atomic counters for thread-safe reporting
         AtomicLong passwordsFound = new AtomicLong(0);
-        AtomicLong usersCompleted = new AtomicLong(0);
-        AtomicLong hashesComputed = new AtomicLong(0); // For total hash count
+        AtomicLong usersProcessed = new AtomicLong(0);
 
         // 1. Load data
         List<User> users = userLoader.load(usersPath);
@@ -48,41 +48,44 @@ public class DictionaryAttackRunner {
 
         long totalUsers = users.size();
         long dictSize = dict.size();
-        long totalPossibleHashes = totalUsers * dictSize;
 
         System.out.println("Loaded " + totalUsers + " users and " + dictSize + " dictionary words.");
-        System.out.println("Total possible hashes: " + totalPossibleHashes);
         System.out.println("Using " + Runtime.getRuntime().availableProcessors() + " available processors...");
 
-        // 2. Run the attack using a parallel stream over the users.
+        // 2. Pre-compute all dictionary hashes (M operations instead of N×M)
+        System.out.println("\nPhase 1: Pre-computing dictionary hashes...");
+        long hashStart = System.currentTimeMillis();
+
+        Map<String, String> hashToPlaintext = buildHashLookupTable(dict);
+
+        long hashDuration = System.currentTimeMillis() - hashStart;
+        System.out.println("Pre-computed " + hashToPlaintext.size() + " hashes in " + hashDuration + "ms");
+        System.out.println("Total hashes computed: " + hashToPlaintext.size());
+
+        // 3. Phase 2: Lookup user passwords in pre-computed hash table
+        System.out.println("\nPhase 2: Looking up user passwords...");
+        long lookupStart = System.currentTimeMillis();
+
         users.parallelStream().forEach(user -> {
-            // If user is already found (e.g., from a previous run), skip.
+            // Skip if already found
             if (user.isFound()) {
-                usersCompleted.incrementAndGet();
+                usersProcessed.incrementAndGet();
                 return;
             }
 
-            try {
-                // 3. For each user, iterate through the entire dictionary
-                for (String passwordGuess : dict) {
-                    hashesComputed.incrementAndGet();
+            // O(1) lookup in the hash table
+            String plainPassword = hashToPlaintext.get(user.getHashedPassword());
 
-                    // This is the logic from your CrackTask, now inside the stream
-                    // It uses your Hasher.hash() and User.getHashedPassword()
-                    if (hasher.hash(passwordGuess).equals(user.getHashedPassword())) {
-                        user.markFound(passwordGuess); // Use your markFound() method
-                        passwordsFound.incrementAndGet();
-                        break; // Password found, stop checking this user
-                    }
+            if (plainPassword != null) {
+                synchronized (user) {
+                    user.markFound(plainPassword);
                 }
-            } catch (AppException e) {
-                // Log an error for this specific user but continue with others
-                System.err.println("\nFailed to process user " + user.getUsername() + ": " + e.getMessage());
+                passwordsFound.incrementAndGet();
             }
 
-            // 4. Update progress
-            long count = usersCompleted.incrementAndGet();
-            if (count % 10 == 0 || count == totalUsers) { // Report progress
+            // Update progress every 100 users to reduce contention
+            long count = usersProcessed.incrementAndGet();
+            if (count % 100 == 0 || count == totalUsers) {
                 double progress = (double) count / totalUsers * 100.0;
                 String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
                 System.out.printf("\r[%s] Progress: %.2f%% | Passwords Found: %d | Users Processed: %d/%d",
@@ -90,15 +93,57 @@ public class DictionaryAttackRunner {
             }
         });
 
-        // 5. Print final summary
-        long duration = System.currentTimeMillis() - start;
-        System.out.println(); // Move to a new line after the progress bar
-        System.out.println("Attack finished.");
-        System.out.println("Total passwords found: " + passwordsFound.get());
-        System.out.println("Total hashes computed: " + hashesComputed.get());
-        System.out.println("Total time spent (ms): " + duration);
+        long lookupDuration = System.currentTimeMillis() - lookupStart;
 
-        // 6. Write results
+        // 4. Print final summary
+        long totalDuration = System.currentTimeMillis() - start;
+        System.out.println("\n\nAttack finished.");
+        System.out.println("Total passwords found: " + passwordsFound.get());
+        System.out.println("Total hashes computed: " + hashToPlaintext.size());
+        System.out.println("Hash computation time: " + hashDuration + "ms");
+        System.out.println("Lookup time: " + lookupDuration + "ms");
+        System.out.println("Total time: " + totalDuration + "ms");
+
+        // Calculate efficiency improvement
+        long naiveHashCount = totalUsers * dictSize;
+        double improvement = (double) naiveHashCount / hashToPlaintext.size();
+        System.out.printf("Efficiency: Computed %d hashes instead of %d (%.1fx improvement)\n",
+                hashToPlaintext.size(), naiveHashCount, improvement);
+
+        // 5. Write results
         resultWriter.write(outputPath, users);
+    }
+
+
+    private Map<String, String> buildHashLookupTable(List<String> dictionary) throws AppException {
+        // Use ConcurrentHashMap for thread-safe parallel insertion
+        Map<String, String> hashToPlaintext = new ConcurrentHashMap<>();
+
+        AtomicLong processed = new AtomicLong(0);
+        long total = dictionary.size();
+
+        try {
+            dictionary.parallelStream().forEach(plaintext -> {
+                try {
+                    String hash = hasher.hash(plaintext);
+                    hashToPlaintext.put(hash, plaintext);
+
+                    // Progress reporting every 10,000 hashes
+                    long count = processed.incrementAndGet();
+                    if (count % 10000 == 0 || count == total) {
+                        double progress = (double) count / total * 100.0;
+                        System.out.printf("\r  Hashing progress: %.2f%% (%d/%d)",
+                                progress, count, total);
+                    }
+                } catch (AppException e) {
+                    System.err.println("\nWarning: Failed to hash password '" + plaintext + "': " + e.getMessage());
+                }
+            });
+            System.out.println(); // New line after progress
+        } catch (Exception e) {
+            throw new AppException("Failed to build hash lookup table: " + e.getMessage(), e);
+        }
+
+        return hashToPlaintext;
     }
 }

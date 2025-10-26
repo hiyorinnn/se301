@@ -6,18 +6,19 @@
   <component name="ChangeListManager">
     <list default="true" id="1ec91070-822a-4bfd-8246-90b46bf20c77" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/app/DictionaryAttackRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/app/DictionaryAttackRunner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/model/CrackTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/model/CrackTask.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackRunner.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackRunner.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/io/CsvResultWriter.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/io/CsvResultWriter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/UserLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/loader/UserLoader.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/model/CrackTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/model/CrackTask.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/model/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/model/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/service/Sha256Hasher.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/service/Sha256Hasher.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/maven-archiver/pom.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackApp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackRunner.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/error/AppException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/io/CsvResultWriter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/io/ResultWriter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/DictionaryLoader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/Loader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/UserLoader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/model/CrackTask.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/model/User.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/service/Hasher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/service/Sha256Hasher.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/code/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/se301-1.1-SNAPSHOT-jar-with-dependencies.jar" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/se301-1.1-SNAPSHOT-jar-with-dependencies.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/se301-1.1-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/se301-1.1-SNAPSHOT.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
