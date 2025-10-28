@@ -18,11 +18,9 @@ public class DictionaryAttackRunner {
     private final Loader<String> dictLoader;
     private final Hasher hasher;
     private final ResultWriter resultWriter;
-    // Configurable thread pool size
-    private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
 
-    // (?)to-do: Change into di, for more flexibility
+
     public DictionaryAttackRunner(Loader<User> userLoader,
                                   Loader<String> dictLoader,
                                   Hasher hasher,
@@ -44,20 +42,18 @@ public class DictionaryAttackRunner {
         List<User> users = userLoader.load(usersPath);
         List<String> dict = dictLoader.load(dictPath);
 
+
+        // 2. instantiate CrackTask, todo: make it generic
+        CrackTask cracker = new CrackTask(dict, hasher);
         long totalUsers = users.size();
+        System.out.println("Starting attack with " + totalUsers + " total tasks...");
 
-        // 2. Pre-compute all dictionary hashes (M operations instead of N×M)
-        long hashStart = System.currentTimeMillis();
 
-        System.out.println("Starting attack with " + dict.size() + " total tasks...");
-        Map<String, String> hashToPlaintext = buildHashLookupTable(dict);
+        Map<String, String> hashToPlaintext = cracker.buildHashLookupTable();
 
-        long hashDuration = System.currentTimeMillis() - hashStart;
-
-        // 3. Phase 2: Lookup user passwords in pre-computed hash table
-        long lookupStart = System.currentTimeMillis();
-
-        // to-do: is parallelStream() overkill here?
+        // todo: is parallelStream() overkill here?
+        // todo: hashmap if got more data, the hashmap will overflow, add interface to handle more
+        // 3. Lookup
         users.parallelStream().forEach(user -> {
             // Skip if already found
             if (user.isFound()) {
@@ -77,9 +73,8 @@ public class DictionaryAttackRunner {
 
         });
 
-        long lookupDuration = System.currentTimeMillis() - lookupStart;
 
-        // 4. Print final summary
+        // 4. Print final summary todo: seperate this
         System.out.println();
         System.out.println("Total passwords found: " + passwordsFound);
         System.out.println("Total hashes computed: " + hashToPlaintext.size());
@@ -89,115 +84,5 @@ public class DictionaryAttackRunner {
         // 5. Write results
         resultWriter.write(outputPath, users);
     }
-
-
-    private Map<String, String> buildHashLookupTable(List<String> dictionary) throws AppException {
-        // Use ConcurrentHashMap for thread-safe parallel insertion
-        Map<String, String> hashToPlaintext = new ConcurrentHashMap<>();
-
-        AtomicLong processed = new AtomicLong(0);
-        long total = dictionary.size();
-
-        try {
-            dictionary.parallelStream().forEach(plaintext -> {
-                try {
-                    String hash = hasher.hash(plaintext);
-                    hashToPlaintext.put(hash, plaintext);
-
-                    // Update progress (use the correct counter!)
-                    long count = processed.incrementAndGet();
-                    if (count % 1000 == 0 || count == total) {
-                        double progress = (double) count / total * 100.0;
-                        String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-                        System.out.printf(
-                                "\r[%s] Hashing progress: %.2f%% (%d/%d)",
-                                ts, progress, count, total
-                        );
-                    }
-
-                } catch (AppException e) {
-                    System.err.println("\nWarning: Failed to hash password '" + plaintext + "': " + e.getMessage());
-                }
-            });
-            System.out.println(); // New line after progress
-        } catch (Exception e) {
-            throw new AppException("Failed to build hash lookup table: " + e.getMessage(), e);
-        }
-
-        return hashToPlaintext;
-    }
-
-//
-//    private Map<String, String> buildHashLookupTable(List<String> dictionary) throws AppException {
-//        // Use ConcurrentHashMap for thread-safe parallel insertion
-//        Map<String, String> hashToPlaintext = new ConcurrentHashMap<>();
-//
-//        // Create ExecutorService with fixed thread pool
-//        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-//
-//        AtomicLong processed = new AtomicLong(0);
-//        long total = dictionary.size();
-//
-//        // List to collect futures for error handling
-//        List<Future<?>> futures = new ArrayList<>();
-//
-//        try {
-//            // Submit tasks for each dictionary entry
-//            for (String plaintext : dictionary) {
-//                Future<?> future = executor.submit(() -> {
-//                    try {
-//                        String hash = hasher.hash(plaintext);
-//                        hashToPlaintext.put(hash, plaintext);
-//
-//                        // Update progress
-//                        long count = processed.incrementAndGet();
-//                        if (count % 10000 == 0 || count == total) {
-//                            double progress = (double) count / total * 100.0;
-//                            String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-//                            System.out.printf("\r[%s] Hashing progress: %.2f%% (%d/%d)",
-//                                    ts, progress, count, total);
-//                        }
-//                    } catch (AppException e) {
-//                        System.err.println("\nWarning: Failed to hash password '" + plaintext + "': " + e.getMessage());
-//                    }
-//                });
-//                futures.add(future);
-//            }
-//
-//            // Shutdown executor and wait for all tasks to complete
-//            executor.shutdown();
-//
-//            try {
-//                // Wait for all tasks to complete (with timeout)
-//                if (!executor.awaitTermination(1, TimeUnit.HOURS)) {
-//                    executor.shutdownNow();
-//                    throw new AppException("Hash computation timed out after 1 hour");
-//                }
-//
-//                // Check for any exceptions in futures
-//                for (Future<?> future : futures) {
-//                    try {
-//                        future.get(); // This will throw if the task threw an exception
-//                    } catch (ExecutionException e) {
-//                        // Log but continue processing other passwords
-//                        System.err.println("\nWarning: Task failed: " + e.getCause().getMessage());
-//                    }
-//                }
-//
-//            } catch (InterruptedException e) {
-//                executor.shutdownNow();
-//                Thread.currentThread().interrupt();
-//                throw new AppException("Hash computation was interrupted", e);
-//            }
-//
-//            System.out.println(); // New line after progress
-//
-//        } catch (Exception e) {
-//            executor.shutdownNow();
-//            throw new AppException("Failed to build hash lookup table: " + e.getMessage(), e);
-//        }
-//
-//        return hashToPlaintext;
-//    }
 
 }

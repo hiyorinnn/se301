@@ -1,5 +1,7 @@
 package org.example.model;
 
+
+// todo maybe make a DTO, so future if the input not txt anymore jsut change DTO, dont need change user
 public class User {
     private final String username;
     private final String hashedPassword;
