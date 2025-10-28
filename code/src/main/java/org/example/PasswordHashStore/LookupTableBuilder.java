@@ -12,14 +12,12 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 //todo maybe decouple crack-task form dictionaryAttackRunner and Hasher with interface, break them up
-public class DictionaryHashTask {
+public class LookupTableBuilder {
     private final List<String> dictionary;
     private final Hasher hasher;
-    // Configurable thread pool size
-    private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
     // modified to have dependency injection for better flexibility
-    public DictionaryHashTask(List<String> dictionary, Hasher hasher) {
+    public LookupTableBuilder(List<String> dictionary, Hasher hasher) {
         this.dictionary = dictionary;
         this.hasher = hasher;
     }
