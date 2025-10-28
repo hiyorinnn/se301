@@ -8,11 +8,11 @@ import org.example.io.*;
 public class AppFactory {
     public static DictionaryAttackRunner createRunner() {
         
-        Loader<User> userLoader = new UserLoader();
-        Loader<String> dictLoader = new DictionaryLoader();
-        Hasher hasher = new Sha256Hasher();
+        LoadService loadService = new LoadService(new UserLoader(), new DictionaryLoader());
+        HashService hashService = new HashService();
+        AttackService attackService = new AttackService();
         ResultWriter writer = new CsvResultWriter();
 
-        return new DictionaryAttackRunner(userLoader, dictLoader, hasher, writer);
+        return new DictionaryAttackRunner(loadService, hashService, attackService, writer);
     }
 }
