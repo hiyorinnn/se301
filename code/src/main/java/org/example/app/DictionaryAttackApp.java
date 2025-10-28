@@ -1,9 +1,6 @@
 package org.example.app;
 
 import org.example.error.AppException;
-import org.example.loader.*;
-import org.example.service.*;
-import org.example.io.*;
 
 public class DictionaryAttackApp {
 
@@ -13,14 +10,8 @@ public class DictionaryAttackApp {
             System.exit(2);
         }
 
-        var userLoader = new UserLoader();
-        var dictLoader = new DictionaryLoader();
-        var hasher = new Sha256Hasher();
-        var resultWriter = new CsvResultWriter();
-
-        var runner = new DictionaryAttackRunner(userLoader, dictLoader, hasher, resultWriter);
-
         try {
+            var runner = AppFactory.createRunner();
             runner.run(args[0], args[1], args[2]);
         } catch (AppException e) {
             System.err.println("Error: " + e.getMessage());

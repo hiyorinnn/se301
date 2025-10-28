@@ -2,9 +2,12 @@ package org.example.app;
 
 import org.example.loader.*;
 import org.example.model.*;
-import org.example.service.*;
+import org.example.threads.ExecutorProvider;
+import org.example.threads.VirtualExecutorProvider;
 import org.example.io.*;
+import org.example.CrackTask.CrackTask;
 import org.example.error.AppException;
+import org.example.hash.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,19 +17,16 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class DictionaryAttackRunner {
 
-    private final Loader<User> userLoader;
-    private final Loader<String> dictLoader;
+    private final LoadService loadService;
     private final Hasher hasher;
     private final ResultWriter resultWriter;
 
 
 
-    public DictionaryAttackRunner(Loader<User> userLoader,
-                                  Loader<String> dictLoader,
+    public DictionaryAttackRunner(LoadService loadService,
                                   Hasher hasher,
                                   ResultWriter resultWriter) {
-        this.userLoader = userLoader;
-        this.dictLoader = dictLoader;
+        this.loadService = loadService;
         this.hasher = hasher;
         this.resultWriter = resultWriter;
     }
@@ -39,9 +39,11 @@ public class DictionaryAttackRunner {
         AtomicLong usersProcessed = new AtomicLong(0);
 
         // 1. Load data (single thread)
-        List<User> users = userLoader.load(usersPath);
-        List<String> dict = dictLoader.load(dictPath);
+        ExecutorProvider ioProvider = new VirtualExecutorProvider();
+        LoadService.LoadedData data = loadService.load(usersPath, dictPath, ioProvider);
 
+        List<User> users = data.users();
+        List<String> dict = data.dict();
 
         // 2. instantiate CrackTask, todo: make it generic
         CrackTask cracker = new CrackTask(dict, hasher);
@@ -73,16 +75,14 @@ public class DictionaryAttackRunner {
 
         });
 
-
         // 4. Print final summary todo: seperate this
         System.out.println();
         System.out.println("Total passwords found: " + passwordsFound);
         System.out.println("Total hashes computed: " + hashToPlaintext.size());
         System.out.println("Total time spent (ms): " + (System.currentTimeMillis() - start));
 
-
         // 5. Write results
-        resultWriter.write(outputPath, users);
+        resultWriter.write(outputPath, data.users());
     }
 
 }

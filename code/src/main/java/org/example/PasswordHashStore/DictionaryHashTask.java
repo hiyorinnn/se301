@@ -1,8 +1,7 @@
 package org.example.PasswordHashStore;
 
-import org.example.service.Hasher;
-
 import org.example.error.AppException;
+import org.example.hash.Hasher;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
