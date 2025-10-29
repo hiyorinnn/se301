@@ -14,6 +14,7 @@ C:\wamp64\www\se301\code\src\main\java\org\example\loader\UserLoader.java
 C:\wamp64\www\se301\code\src\main\java\org\example\model\PasswordHashConfig.java
 C:\wamp64\www\se301\code\src\main\java\org\example\model\User.java
 C:\wamp64\www\se301\code\src\main\java\org\example\PasswordHashStore\LookupTableBuilder.java
+C:\wamp64\www\se301\code\src\main\java\org\example\progressReporter\ProgressReporter.java
 C:\wamp64\www\se301\code\src\main\java\org\example\threads\ConfigurableExecutorProvider.java
 C:\wamp64\www\se301\code\src\main\java\org\example\threads\ExecutorProvider.java
 C:\wamp64\www\se301\code\src\main\java\org\example\threads\VirtualExecutorProvider.java

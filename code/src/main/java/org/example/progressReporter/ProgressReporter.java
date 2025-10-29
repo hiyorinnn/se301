@@ -19,17 +19,20 @@ public class ProgressReporter implements Runnable {
     @Override
     public void run() {
         while (running) {
-        long count = counter.get();
-        double progress = (double) count / total * 100.0;
-        String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        System.out.printf("\r[%s] %.2f%% (%d/%d)", ts, progress, count, total);
-        // System.out.printf("\r[%s] %s: %.2f%% (%d/%d)", ts, progress, count,total);
-        if (count >= total) break;
-        try {
-        Thread.sleep(500);
-        } catch (InterruptedException e) {
-        break;
-        }
+            long count = counter.get();
+            String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+            if (count >= total) {
+                System.out.printf("\r[%s] 100.00%% (%d/%d)", ts, total, total);
+                System.out.println();
+                break;
+            } else {
+                double progress = (double) count / total * 100.0;
+                System.out.printf("\r[%s] %.2f%% (%d/%d)", ts, progress, count, total);
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
         }
         // while (running) {
         //     long count = counter.get();
