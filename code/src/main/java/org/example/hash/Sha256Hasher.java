@@ -31,10 +31,13 @@ public class Sha256Hasher implements Hasher {
             SIDE_EFFECT_SINK ^= d[0];
             }
 
-            byte[] hashBytes = DIGEST.get().digest(input.getBytes(StandardCharsets.UTF_8));
-
-            // Modern, concise hex conversion
-            return HexFormat.of().formatHex(hashBytes);
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hash) {
+                hex.append(String.format("%02x", b));
+            }
+            return hex.toString();
 
         } catch (Exception e) {
             throw new AppException("SHA-256 hashing failed", e);
