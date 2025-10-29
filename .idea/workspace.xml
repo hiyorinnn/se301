@@ -6,16 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1ec91070-822a-4bfd-8246-90b46bf20c77" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/CrackTask/CrackTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/CrackTask/CrackTask.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/PasswordHashStore/LookupTableBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/PasswordHashStore/LookupTableBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/app/DictionaryAttackRunner.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/app/DictionaryAttackRunner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/io/CsvResultWriter.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/io/CsvResultWriter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/model/PasswordHashConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/model/PasswordHashConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/PasswordHashStore/LookupTableBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/PasswordHashStore/LookupTableBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/io/CsvResultWriter.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/io/CsvResultWriter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/test_v01-jar-with-dependencies.jar" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/test_v01-jar-with-dependencies.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/code/target/test_v01.jar" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/test_v01.jar" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,25 +31,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Maven.se301 [clean].executor": "Run",
-    "Maven.se301 [compile].executor": "Run",
-    "Maven.se301 [package].executor": "Run",
-    "Maven.se301 [test].executor": "Run",
-    "Maven.se301 [verify].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "yw5-concurrency",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Yun Wen/code/SE301/project/se301",
-    "project.structure.last.edited": "SDKs",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven.se301 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.se301 [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.se301 [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.se301 [test].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.se301 [verify].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;yw5-concurrency&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Yun Wen/code/SE301/project/se301&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Yun Wen\code\SE301\project\se301\code\target" />
