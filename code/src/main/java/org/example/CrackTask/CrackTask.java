@@ -1,28 +1,18 @@
 package org.example.CrackTask;
 
+import org.example.StoreHashPassword.StoreHashPassword;
 import org.example.model.User;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class CrackTask {
-    // Atomic counters for thread-safe reporting todo shift out to report class
-    private final AtomicLong passwordsFound;
-    private final Collection<User> users;
-    private final Map<String, String> lookupTable;
-
-
-    public CrackTask(Collection<User> users, Map<String, String> lookupTable, AtomicLong passwordsFound){
-        this.users = users;
-        this.lookupTable = lookupTable;
-        this.passwordsFound = passwordsFound;
-    }
+public class CrackTask implements Crack {
 
     // 3. Lookup
-    public void crack() {
+    @Override
+    public void crack(Collection<User> users, Map<String, String> lookupTable, AtomicLong passwordsFound) {
         // todo: hashmap if got more data, the hashmap will overflow, add interface to handle more
-
         users.parallelStream().forEach(user -> {
             if (user.isFound()) {
                 return; // Skip if already found
@@ -31,15 +21,12 @@ public class CrackTask {
             // O(1) lookup in the hash table
             String plainPassword = lookupTable.get(user.getHashedPassword());
 
+            // Mark found password
             if (plainPassword != null) {
-                synchronized (user) {
-                    user.markFound(plainPassword);
-                }
+                user.markFound(plainPassword);
                 passwordsFound.incrementAndGet();
             }
 
         });
     }
-
-
 }

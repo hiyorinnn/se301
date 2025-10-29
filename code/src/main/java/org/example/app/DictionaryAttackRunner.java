@@ -1,14 +1,15 @@
 package org.example.app;
 
+import org.example.CrackTask.Crack;
 import org.example.CrackTask.CrackTask;
-import org.example.PasswordHashStore.LookupTableBuilder;
+import org.example.StoreHashPassword.LookupTableBuilder;
+import org.example.StoreHashPassword.StoreHashPassword;
 import org.example.loader.*;
 import org.example.model.*;
+import org.example.progressReporter.ProgressReporter;
 import org.example.threads.ExecutorProvider;
 import org.example.threads.VirtualExecutorProvider;
 import org.example.io.*;
-import org.example.CrackTask.CrackTask;
-import org.example.PasswordHashStore.LookupTableBuilder;
 import org.example.error.AppException;
 import org.example.hash.*;
 
@@ -18,15 +19,16 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DictionaryAttackRunner {
 
     private final LoadService loadService;
-    private final Hasher hasher;
     private final ResultWriter resultWriter;
+    private final StoreHashPassword storeHashPwd;
+    private final Crack cracker;
 
     public DictionaryAttackRunner(LoadService loadService,
-            Hasher hasher,
-            ResultWriter resultWriter) {
+            ResultWriter resultWriter, StoreHashPassword storeHashPwd, Crack cracker) {
         this.loadService = loadService;
-        this.hasher = hasher;
         this.resultWriter = resultWriter;
+        this.storeHashPwd = storeHashPwd;
+        this.cracker = cracker;
     }
 
     public void run(String usersPath, String dictPath, String outputPath) throws AppException {
@@ -39,9 +41,24 @@ public class DictionaryAttackRunner {
         List<User> users = data.users();
         List<String> dict = data.dict();
 
+        // Set-up progress reporting
+        AtomicLong processed = new AtomicLong(0);
+        long totalHashes = dict.size();
+        ProgressReporter hashProgress = new ProgressReporter(processed, totalHashes);
+        Thread reporterThread = new Thread(hashProgress);
+        reporterThread.start();
+
         // 2. instantiate CrackTask
-        LookupTableBuilder hashPwd = new LookupTableBuilder(dict, hasher);
-        Map<String, String> hashToPlaintext = hashPwd.buildHashLookupTable();
+        Map<String, String> hashToPlaintext = storeHashPwd.buildHashLookupTable(dict, processed);
+
+        // Stop the reporter
+        reporterThread.interrupt();
+        try {
+            reporterThread.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Warning: Progress reporter was interrupted.");
+        }
 
         // Print the start of attack 
         long totalUsers = users.size();
@@ -49,8 +66,7 @@ public class DictionaryAttackRunner {
 
         // 3. Lookup
         AtomicLong passwordsFound = new AtomicLong(0);
-        CrackTask cracker = new CrackTask(users, hashToPlaintext, passwordsFound);
-        cracker.crack();
+        cracker.crack(users, hashToPlaintext, passwordsFound);
 
         // 4. Print final summary 
         System.out.println();
