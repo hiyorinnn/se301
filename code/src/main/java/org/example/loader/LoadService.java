@@ -90,3 +90,56 @@ public class LoadService {
      */
     public record LoadedData(Set<User> users, Set<String> dict) {}
 }
+
+// package org.example.loader;
+
+// import org.example.model.User;
+// import org.example.error.AppException;
+
+// import java.util.Set;
+// import java.util.concurrent.StructuredTaskScope;
+
+// /**
+//  * Service responsible for orchestrating concurrent loading of data sources.
+//  * Uses Structured Concurrency (JDK 25) for cleaner, safer parallel execution.
+//  */
+// public class LoadService {
+
+//     private final Loader<User> userLoader;
+//     private final Loader<String> dictLoader;
+
+//     public LoadService(Loader<User> userLoader, Loader<String> dictLoader) {
+//         this.userLoader = userLoader;
+//         this.dictLoader = dictLoader;
+//     }
+
+//     /**
+//      * Load users and dictionary concurrently using structured concurrency.
+//      *
+//      * @param usersPath path to user file
+//      * @param dictPath  path to dictionary file
+//      * @return LoadedData containing users and dictionary
+//      * @throws AppException if loading fails or is interrupted
+//      */
+//     public LoadedData load(String usersPath, String dictPath) throws AppException {
+//         try (var scope = new StructuredTaskScope.ShutdownOnFailure<Void>()) {
+
+//             var usersFuture = scope.fork(() -> userLoader.load(usersPath));
+//             var dictFuture = scope.fork(() -> dictLoader.load(dictPath));
+
+//             scope.join(); // wait for both to complete
+//             return new LoadedData(usersFuture.resultNow(), dictFuture.resultNow());
+
+//         } catch (StructuredTaskScope.FailedException e) {
+//             throw new AppException("Failed during concurrent file loading", e.getCause());
+//         } catch (InterruptedException e) {
+//             Thread.currentThread().interrupt();
+//             throw new AppException("Loading was interrupted", e);
+//         }
+//     }
+
+//     /**
+//      * Immutable data record for loaded users and dictionary.
+//      */
+//     public record LoadedData(Set<User> users, Set<String> dict) {}
+// }
