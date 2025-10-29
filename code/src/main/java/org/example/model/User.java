@@ -1,5 +1,6 @@
 package org.example.model;
 
+import java.util.Objects;
 
 // todo maybe make a DTO, so future if the input not txt anymore jsut change DTO, dont need change user
 public class User {
@@ -23,4 +24,20 @@ public class User {
         this.found = true;
         this.foundPassword = plain;
     }
+
+    // For set implementation
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return username.equals(user.username) &&
+            hashedPassword.equals(user.hashedPassword);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, hashedPassword);
+    }
+
 }
