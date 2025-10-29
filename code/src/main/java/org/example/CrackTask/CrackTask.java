@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CrackTask {
-    private final AtomicLong passwordsFound;  // Atomic counters for thread-safe reporting todo shift out to report class
+    // Atomic counters for thread-safe reporting todo shift out to report class
+    private final AtomicLong passwordsFound;
     private final Collection<User> users;
     private final Map<String, String> lookupTable;
 
@@ -18,8 +19,10 @@ public class CrackTask {
         this.passwordsFound = passwordsFound;
     }
 
-    // 3. Lookup 
+    // 3. Lookup
     public void crack() {
+        // todo: hashmap if got more data, the hashmap will overflow, add interface to handle more
+
         users.parallelStream().forEach(user -> {
             if (user.isFound()) {
                 return; // Skip if already found
@@ -32,7 +35,7 @@ public class CrackTask {
                 synchronized (user) {
                     user.markFound(plainPassword);
                 }
-                passwordsFound.incrementAndGet(); // update progress
+                passwordsFound.incrementAndGet();
             }
 
         });

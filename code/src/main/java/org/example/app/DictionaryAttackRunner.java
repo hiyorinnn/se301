@@ -1,5 +1,7 @@
 package org.example.app;
 
+import org.example.CrackTask.CrackTask;
+import org.example.PasswordHashStore.LookupTableBuilder;
 import org.example.loader.*;
 import org.example.model.*;
 import org.example.threads.ExecutorProvider;
@@ -10,10 +12,7 @@ import org.example.PasswordHashStore.LookupTableBuilder;
 import org.example.error.AppException;
 import org.example.hash.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DictionaryAttackRunner {
@@ -22,11 +21,9 @@ public class DictionaryAttackRunner {
     private final Hasher hasher;
     private final ResultWriter resultWriter;
 
-
-
     public DictionaryAttackRunner(LoadService loadService,
-                                  Hasher hasher,
-                                  ResultWriter resultWriter) {
+            Hasher hasher,
+            ResultWriter resultWriter) {
         this.loadService = loadService;
         this.hasher = hasher;
         this.resultWriter = resultWriter;
