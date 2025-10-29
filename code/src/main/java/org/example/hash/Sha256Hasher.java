@@ -22,7 +22,9 @@ public class Sha256Hasher implements Hasher {
     @Override
     public String hash(String input) throws AppException {
         try {
-            byte[] hashBytes = DIGEST.get().digest(input.getBytes(StandardCharsets.UTF_8));
+            MessageDigest digest = DIGEST.get();
+            digest.reset(); // Reset digest state before each hash operation
+            byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
 
             // Modern, concise hex conversion
             return HexFormat.of().formatHex(hashBytes);
