@@ -44,8 +44,8 @@ public class DictionaryAttackRunner {
         }
 
         // Now safe to use
-        List<User> users = data.users();
-        List<String> dict = data.dict();
+        Set<User> users = data.users();
+        Set<String> dict = data.dict();
 
         // 2. instantiate CrackTask
         LookupTableBuilder hashPwd = new LookupTableBuilder(dict, hasher);

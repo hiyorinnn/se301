@@ -6,17 +6,17 @@ import org.example.error.AppException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 
 public class LookupTableBuilder {
-    private final List<String> dictionary;
+    private final Set<String> dictionary;
     private final Hasher hasher;
 
-    public LookupTableBuilder(List<String> dictionary, Hasher hasher) {
+    public LookupTableBuilder(Set<String> dictionary, Hasher hasher) {
         this.dictionary = dictionary;
         this.hasher = hasher;
     }
