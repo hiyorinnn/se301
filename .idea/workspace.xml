@@ -6,19 +6,30 @@
   <component name="ChangeListManager">
     <list default="true" id="1ec91070-822a-4bfd-8246-90b46bf20c77" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/CrackTask/CrackTask.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/PasswordHashStore/LookupTableBuilder.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackApp.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackRunner.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/error/AppException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/io/CsvResultWriter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/io/ResultWriter.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/DictionaryLoader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/Loader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/UserLoader.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/model/PasswordHashConfig.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/model/User.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/service/Hasher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/service/Sha256Hasher.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/maven-archiver/pom.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/test_v01-jar-with-dependencies.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/test_v01.jar" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Interface" />
-        <option value="Class" />
-      </list>
-    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />

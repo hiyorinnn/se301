@@ -1,6 +1,6 @@
 package org.example.model;
 
-import org.example.service.Hasher;
+import org.example.hash.Hasher;
 
 import java.util.List;
 

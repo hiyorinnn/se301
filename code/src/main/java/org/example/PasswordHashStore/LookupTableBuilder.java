@@ -1,6 +1,6 @@
 package org.example.PasswordHashStore;
 
-import org.example.service.Hasher;
+import org.example.hash.Hasher;
 
 import org.example.error.AppException;
 
@@ -22,28 +22,23 @@ public class LookupTableBuilder {
         this.hasher = hasher;
     }
 
-    //todo: Add getters and setters, maybe split up the method if possible
-
-    // todo idk whether to make to generic
-
-
     public Map<String, String> buildHashLookupTable() throws AppException {
         // Use ConcurrentHashMap for thread-safe parallel insertion
         Map<String, String> hashToPlaintext = new ConcurrentHashMap<>();
 
+        // Update Progress
         AtomicLong processed = new AtomicLong(0);
         long total = dictionary.size();
 
         try {
             dictionary.parallelStream().forEach(plaintext -> {
                 try {
+                    // Hash password store into lookup table
                     String hash = hasher.hash(plaintext);
                     hashToPlaintext.put(hash, plaintext);
 
-                    // Update progress (use the correct counter!)
+                    // Update Progress
                     long count = processed.incrementAndGet();
-
-                    //todo: shift this outt
                     if (count % 1000 == 0 || count == total) {
                         double progress = (double) count / total * 100.0;
                         String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));

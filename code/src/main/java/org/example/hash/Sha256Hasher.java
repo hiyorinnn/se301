@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.hash;
 
 import org.example.error.AppException;
 
