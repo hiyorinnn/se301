@@ -6,6 +6,7 @@ import org.example.threads.ExecutorProvider;
 import org.example.threads.VirtualExecutorProvider;
 import org.example.io.*;
 import org.example.CrackTask.CrackTask;
+import org.example.PasswordHashStore.LookupTableBuilder;
 import org.example.error.AppException;
 import org.example.hash.*;
 
@@ -34,10 +35,6 @@ public class DictionaryAttackRunner {
     public void run(String usersPath, String dictPath, String outputPath) throws AppException {
         long start = System.currentTimeMillis();
 
-        // Atomic counters for thread-safe reporting
-        AtomicLong passwordsFound = new AtomicLong(0);
-        AtomicLong usersProcessed = new AtomicLong(0);
-
         // 1. Load data (single thread)
         ExecutorProvider ioProvider = new VirtualExecutorProvider();
         LoadService.LoadedData data = loadService.load(usersPath, dictPath, ioProvider);
@@ -45,37 +42,20 @@ public class DictionaryAttackRunner {
         List<User> users = data.users();
         List<String> dict = data.dict();
 
-        // 2. instantiate CrackTask, todo: make it generic
-        CrackTask cracker = new CrackTask(dict, hasher);
+        // 2. instantiate CrackTask
+        LookupTableBuilder hashPwd = new LookupTableBuilder(dict, hasher);
+        Map<String, String> hashToPlaintext = hashPwd.buildHashLookupTable();
+
+        // Print the start of attack 
         long totalUsers = users.size();
         System.out.println("Starting attack with " + totalUsers + " total tasks...");
 
-
-        Map<String, String> hashToPlaintext = cracker.buildHashLookupTable();
-
-        // todo: is parallelStream() overkill here?
-        // todo: hashmap if got more data, the hashmap will overflow, add interface to handle more
         // 3. Lookup
-        users.parallelStream().forEach(user -> {
-            // Skip if already found
-            if (user.isFound()) {
-                usersProcessed.incrementAndGet();
-                return;
-            }
+        AtomicLong passwordsFound = new AtomicLong(0);
+        CrackTask cracker = new CrackTask(users, hashToPlaintext, passwordsFound);
+        cracker.crack();
 
-            // O(1) lookup in the hash table
-            String plainPassword = hashToPlaintext.get(user.getHashedPassword());
-
-            if (plainPassword != null) {
-                synchronized (user) {
-                    user.markFound(plainPassword);
-                }
-                passwordsFound.incrementAndGet();
-            }
-
-        });
-
-        // 4. Print final summary todo: seperate this
+        // 4. Print final summary 
         System.out.println();
         System.out.println("Total passwords found: " + passwordsFound);
         System.out.println("Total hashes computed: " + hashToPlaintext.size());

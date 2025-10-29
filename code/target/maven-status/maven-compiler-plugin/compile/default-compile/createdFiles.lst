@@ -1,4 +1,5 @@
 org\example\model\User.class
 org\example\PasswordHashStore\LookupTableBuilder.class
+org\example\io\ResultWriter.class
 org\example\CrackTask\CrackTask.class
 org\example\error\AppException.class
