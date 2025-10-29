@@ -33,9 +33,11 @@ public class CrackTask {
 
             if (plainPassword != null) {
                 synchronized (user) {
-                    user.markFound(plainPassword);
+                    if (!user.isFound()) {
+                        user.markFound(plainPassword);
+                        passwordsFound.incrementAndGet();
+                    }
                 }
-                passwordsFound.incrementAndGet();
             }
 
         });
