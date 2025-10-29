@@ -22,3 +22,38 @@ public class DictionaryLoader implements Loader<String> {
         }  
     }
 }
+
+// Better for memory
+
+// package org.example.loader;
+
+// import java.io.IOException;
+// import java.nio.file.Files;
+// import java.nio.file.Path;
+// import java.util.HashSet;
+// import java.util.Set;
+// import java.util.stream.Stream;
+
+// import org.example.error.AppException;
+
+// public class DictionaryLoader implements Loader<String> {
+
+//     private final Set<String> words = new HashSet<>();
+
+//     @Override
+//     public Set<String> load(String filePath) throws AppException {
+//         try (Stream<String> lines = Files.lines(Path.of(filePath))) {
+//             lines.map(String::trim)
+//                  .filter(line -> !line.isEmpty())
+//                  .forEach(this::processWord);
+//         } catch (IOException e) {
+//             throw new AppException("Failed to load dictionary: " + filePath, e);
+//         }
+
+//         return words;
+//     }
+
+//     private void processWord(String word) {
+//         words.add(word);  // automatically avoids duplicates
+//     }
+// }

@@ -1,11 +1,14 @@
+// to add method for each "task"
+//import title change to specific
+
 package org.example.app;
 
 import org.example.CrackTask.CrackTask;
 import org.example.PasswordHashStore.LookupTableBuilder;
 import org.example.loader.*;
 import org.example.model.*;
+import org.example.threads.ConfigurableExecutorProvider;
 import org.example.threads.ExecutorProvider;
-import org.example.threads.VirtualExecutorProvider;
 import org.example.io.*;
 import org.example.CrackTask.CrackTask;
 import org.example.PasswordHashStore.LookupTableBuilder;
@@ -32,10 +35,17 @@ public class DictionaryAttackRunner {
     public void run(String usersPath, String dictPath, String outputPath) throws AppException {
         long start = System.currentTimeMillis();
 
-        // 1. Load data (single thread)
-        ExecutorProvider ioProvider = new VirtualExecutorProvider();
-        LoadService.LoadedData data = loadService.load(usersPath, dictPath, ioProvider);
+        // 1. Load data ((Virtual)
+        // ExecutorProvider ioProvider = new VirtualExecutorProvider();
+        // LoadService.LoadedData data = loadService.load(usersPath, dictPath, ioProvider);
 
+        // 1. Load data (Platform Thread)
+        LoadService.LoadedData data;
+        try (ExecutorProvider ioProvider = ConfigurableExecutorProvider.fixedCpuPool()) {
+            data = loadService.load(usersPath, dictPath, ioProvider);
+        }
+
+        // Now safe to use
         List<User> users = data.users();
         List<String> dict = data.dict();
 
