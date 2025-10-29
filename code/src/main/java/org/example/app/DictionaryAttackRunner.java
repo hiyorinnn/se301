@@ -21,11 +21,9 @@ public class DictionaryAttackRunner {
     private final Hasher hasher;
     private final ResultWriter resultWriter;
 
-
-
     public DictionaryAttackRunner(LoadService loadService,
-                                  Hasher hasher,
-                                  ResultWriter resultWriter) {
+            Hasher hasher,
+            ResultWriter resultWriter) {
         this.loadService = loadService;
         this.hasher = hasher;
         this.resultWriter = resultWriter;
