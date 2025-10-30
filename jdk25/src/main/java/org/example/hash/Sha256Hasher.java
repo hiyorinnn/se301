@@ -24,8 +24,11 @@ public class Sha256Hasher implements Hasher {
         try {
             byte[] hashBytes = DIGEST.get().digest(input.getBytes(StandardCharsets.UTF_8));
 
-            // Modern, concise hex conversion
-            return HexFormat.of().formatHex(hashBytes);
+            try {
+                return HexVectorEncoder.encodeToHex(hashBytes);
+            } catch (UnsupportedOperationException | LinkageError e) {
+                return HexFormat.of().formatHex(hashBytes);
+            }
 
         } catch (RuntimeException e) {
             throw new AppException("SHA-256 hashing failed", e);
