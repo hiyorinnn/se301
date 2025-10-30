@@ -7,7 +7,6 @@ org\example\hash\Hasher.class
 org\example\CrackTask\CrackTask.class
 org\example\threads\ExecutorProvider.class
 org\example\error\AppException.class
-org\example\hash\HexVectorEncoder.class
 org\example\threads\ConfigurableExecutorProvider.class
 org\example\hash\Sha256Hasher.class
 org\example\loader\UserLoader.class
