@@ -2,61 +2,54 @@ package org.example.progressReporter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.TimeUnit;
 
 public class ProgressReporter implements Runnable {
-    private final AtomicLong counter;
-    private final long total;
-    // private final String title;
-    private volatile boolean running = true;
+    private final AtomicLong completedTasks;
+    private final long totalTasks;
+    private final AtomicLong passwordsFound;
+    private final CountDownLatch attackFinishedLatch;
+    private long lastReportedCount = 0;
+    private static final int REPORT_BATCH_SIZE = 1000; 
 
-    public ProgressReporter(AtomicLong counter, long total) {
-        this.counter = counter;
-        this.total = total;
-        // this.title = title;
+    public ProgressReporter(AtomicLong completedTasks, long totalTasks, AtomicLong passwordsFound, CountDownLatch attackFinishedLatch) {
+        this.completedTasks = completedTasks;
+        this.totalTasks = totalTasks;
+        this.passwordsFound = passwordsFound;
+        this.attackFinishedLatch = attackFinishedLatch;
     }
 
     @Override
     public void run() {
-        while (running) {
-        long count = counter.get();
-        double progress = (double) count / total * 100.0;
-        String ts = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        System.out.printf("\r[%s] %.2f%% (%d/%d)", ts, progress, count, total);
-        // System.out.printf("\r[%s] %s: %.2f%% (%d/%d)", ts, progress, count,total);
-        if (count >= total) break;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         try {
-        Thread.sleep(500);
+            while (!attackFinishedLatch.await(10, TimeUnit.MILLISECONDS)) {
+                long count = completedTasks.get();
+                while (lastReportedCount + REPORT_BATCH_SIZE <= count) {
+                    lastReportedCount += REPORT_BATCH_SIZE;
+                    printStatus(lastReportedCount, formatter);
+                }
+            }
         } catch (InterruptedException e) {
-        break;
+            Thread.currentThread().interrupt();
+        } finally {
+            // Always print final status
+            printStatus(completedTasks.get(), formatter);
         }
-        }
-        // while (running) {
-        //     long count = counter.get();
-        //     long remainingTasks = total - count;
-        //     double progressPercent = (double) count / total * 100.0;
-        //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        //     String timestamp = LocalDateTime.now().format(formatter);
-
-        //     // Match printing style from your task processing loop
-        //     System.out.printf(
-        //             "\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %d",
-        //             timestamp, progressPercent, passwordsFound.get(), remainingTasks);
-
-        //     if (count >= total)
-        //         break;
-
-        //     try {
-        //         Thread.sleep(500);
-        //     } catch (InterruptedException e) {
-        //         break;
-        //     }
-        // }
-
-        System.out.println(); // New line after final progress
     }
 
-    public void stop() {
-        this.running = false;
+        private void printStatus(long count, DateTimeFormatter formatter) {
+        long remaining = Math.max(0L, totalTasks - count);
+        double percent = totalTasks > 0 ? (double) count / totalTasks * 100.0 : 0;
+        String timestamp = LocalDateTime.now().format(formatter);
+        System.out.printf(
+            "\r[%s] %.2f%% complete | Passwords Found: %d | Tasks Remaining: %d    ",
+            timestamp, percent, passwordsFound.get(), remaining
+        );
     }
 }
+
+
+

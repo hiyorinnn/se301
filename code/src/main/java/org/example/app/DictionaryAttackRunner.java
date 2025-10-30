@@ -2,6 +2,7 @@ package org.example.app;
 
 import org.example.loader.*;
 import org.example.model.*;
+import org.example.progressReporter.ProgressReporter;
 import org.example.threads.ExecutorProvider;
 import org.example.threads.VirtualExecutorProvider;
 import org.example.io.*;
@@ -10,10 +11,8 @@ import org.example.PasswordHashStore.DictionaryHashTask;
 import org.example.error.AppException;
 import org.example.hash.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DictionaryAttackRunner {
@@ -35,7 +34,7 @@ public class DictionaryAttackRunner {
 
         // Atomic counters for thread-safe reporting
         AtomicLong passwordsFound = new AtomicLong(0);
-        AtomicLong usersProcessed = new AtomicLong(0);
+        AtomicLong completedTasks = new AtomicLong(0);
 
         // 1. Load data (single thread)
         ExecutorProvider ioProvider = new VirtualExecutorProvider();
@@ -43,14 +42,31 @@ public class DictionaryAttackRunner {
 
         List<User> users = data.users();
         List<String> dict = data.dict();
+        AtomicLong processed = new AtomicLong(0);
+        long total = dict.size();
+        CountDownLatch attackFinishedLatch = new CountDownLatch(1);
+
+        System.out.println("Starting attack with " + total + " total tasks...");
+
+        // 1. Start a progress reporter thread
+        ProgressReporter reporter = new ProgressReporter(completedTasks, total, passwordsFound, attackFinishedLatch);
+        Thread reporterThread = new Thread(reporter);
+        reporterThread.start();
 
         // 2. Build hash lookup table
         DictionaryHashTask hasherTask = new DictionaryHashTask(dict, hasher);
-        Map<String, String> hashToPlaintext = hasherTask.buildHashLookupTable();
+        Map<String, String> hashToPlaintext = hasherTask.buildHashLookupTable(processed);
 
         // 3. Crack
         CrackTask cracker = new CrackTask(users, hashToPlaintext, passwordsFound);
         cracker.crack();
+
+        attackFinishedLatch.countDown();   
+        try {         
+            reporterThread.join();       
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Reporter thread interrupted during shutdown.");
 
         // 4. Print final summary todo: seperate this
         System.out.println();
@@ -62,4 +78,4 @@ public class DictionaryAttackRunner {
         resultWriter.write(outputPath, data.users());
     }
 
-}
+    }}

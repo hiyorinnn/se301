@@ -16,7 +16,6 @@ org\example\threads\VirtualExecutorProvider.class
 org\example\loader\DictionaryLoader.class
 org\example\loader\Loader.class
 org\example\model\PasswordHashConfig.class
-org\example\progressReporter\ProgressListener.class
 org\example\progressReporter\ProgressReporter.class
 org\example\app\DictionaryAttackRunner.class
 org\example\PasswordHashStore\DictionaryHashTask.class
