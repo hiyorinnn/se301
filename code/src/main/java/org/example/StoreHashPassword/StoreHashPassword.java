@@ -4,6 +4,7 @@ import org.example.error.AppException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public interface StoreHashPassword {
@@ -14,5 +15,5 @@ public interface StoreHashPassword {
      * @return The completed lookup map.
      * @throws AppException If hashing fails.
      */
-    Map<String, String> buildHashLookupTable(List<String> dictionary, AtomicLong processed)throws AppException;
+    Map<String, String> buildHashLookupTable(Set<String> dictionary, AtomicLong processed)throws AppException;
 }

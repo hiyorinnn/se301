@@ -6,6 +6,7 @@ import org.example.progressReporter.ProgressReporter;
 import org.example.error.AppException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -21,7 +22,7 @@ public class LookupTableBuilder implements StoreHashPassword {
 
     // todo: Add getters and setters, maybe split up the method if possible
     // todo idk whether to make to generic
-    public Map<String, String> buildHashLookupTable(List<String> dictionary, AtomicLong processed) throws AppException {
+    public Map<String, String> buildHashLookupTable(Set<String> dictionary, AtomicLong processed) throws AppException {
         Map<String, String> hashToPlaintext = new ConcurrentHashMap<>();
 
 //        // Update Progress

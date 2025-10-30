@@ -1,4 +1,5 @@
 package org.example.model;
+import java.util.Objects;
 
 public class User {
     private final String username;
