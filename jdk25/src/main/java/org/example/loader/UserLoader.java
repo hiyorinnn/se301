@@ -66,7 +66,7 @@ package org.example.loader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -96,15 +96,15 @@ public class UserLoader implements Loader<User> {
      */
     @Override
     public Set<User> load(String filename) throws AppException {
-        Set<User> users = new HashSet<>();
+        Set<User> users = new LinkedHashSet<>();
 
         try (Stream<String> lines = Files.lines(Path.of(filename))) {
             lines.map(line -> line.split(","))    
                  .filter(parts -> parts.length >= 2)
-                 .forEach(parts -> users.add(new User(
+                 .forEachOrdered(parts -> users.add(new User(
                          parts[0].trim(), 
                          parts[1].trim()
-                 )));
+                )));
         } catch (IOException e) {
             throw new AppException("Failed to load users from file: " + filename, e);
         }
