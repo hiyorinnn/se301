@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c676f028-e810-4c91-be31-89da30655280" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/StoreHashPassword/LookupTableBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/StoreHashPassword/LookupTableBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/src/main/java/org/example/progressReporter/ProgressReporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/main/java/org/example/progressReporter/ProgressReporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/CrackTask/CrackTask.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/CrackTask/CrackTask.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/AppFactory.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/app/AppFactory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackApp.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackApp.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackRunner.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/app/DictionaryAttackRunner.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/error/AppException.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/error/AppException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/hash/Sha256Hasher.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/hash/Sha256Hasher.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/io/CsvResultWriter.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/io/CsvResultWriter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/DictionaryLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/loader/DictionaryLoader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/LoadService$LoadedData.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/loader/LoadService$LoadedData.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/LoadService.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/loader/LoadService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/Loader.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/loader/Loader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/loader/UserLoader.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/loader/UserLoader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/model/PasswordHashConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/model/PasswordHashConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/progressReporter/ProgressReporter.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/progressReporter/ProgressReporter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/threads/ConfigurableExecutorProvider.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/threads/ConfigurableExecutorProvider.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/threads/ExecutorProvider.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/threads/ExecutorProvider.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/target/classes/org/example/threads/VirtualExecutorProvider.class" beforeDir="false" afterPath="$PROJECT_DIR$/code/target/classes/org/example/threads/VirtualExecutorProvider.class" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="34YH0T7iYTNaYciGr6C5rrR8mIn" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Maven.se301 [clean].executor": "Run",
+    "Maven.se301 [compile].executor": "Run",
+    "Maven.se301 [package].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "git-widget-placeholder": "yw7-merge",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Yun Wen/code/SE301/project/se301-og"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Yun Wen\code\SE301\project\se301\.idea" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c676f028-e810-4c91-be31-89da30655280" name="Changes" comment="" />
+      <created>1761383361860</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1761383361860</updated>
+    </task>
+    <servers />
+  </component>
+</project>

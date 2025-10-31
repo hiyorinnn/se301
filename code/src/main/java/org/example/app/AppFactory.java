@@ -2,8 +2,8 @@ package org.example.app;
 
 import org.example.CrackTask.Crack;
 import org.example.CrackTask.CrackTask;
-import org.example.StoreHashPassword.LookupTableBuilder;
-import org.example.StoreHashPassword.StoreHashPassword;
+import org.example.store.LookupTableBuilder;
+import org.example.store.StoreHashPassword;
 import org.example.loader.*;
 import org.example.hash.*;
 import org.example.io.*;

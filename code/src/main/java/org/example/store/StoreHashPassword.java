@@ -1,8 +1,7 @@
-package org.example.StoreHashPassword;
+package org.example.store;
 
 import org.example.error.AppException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;

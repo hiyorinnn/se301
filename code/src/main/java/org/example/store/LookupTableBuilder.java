@@ -1,10 +1,9 @@
-package org.example.StoreHashPassword;
+package org.example.store;
 
 import org.example.hash.Hasher;
-import org.example.progressReporter.ProgressReporter;
 
 import org.example.error.AppException;
-import java.util.List;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -19,20 +18,8 @@ public class LookupTableBuilder implements StoreHashPassword {
         this.hasher = hasher;
     }
 
-
-    // todo: Add getters and setters, maybe split up the method if possible
-    // todo idk whether to make to generic
     public Map<String, String> buildHashLookupTable(Set<String> dictionary, AtomicLong processed) throws AppException {
         Map<String, String> hashToPlaintext = new ConcurrentHashMap<>();
-
-//        // Update Progress
-//        AtomicLong processed = new AtomicLong(0);
-//        long total = dictionary.size();
-//
-//        // 1. Start a progress reporter thread
-//        ProgressReporter progress = new ProgressReporter(processed, total);
-//        Thread reporter = new Thread(progress);
-//        reporter.start();
 
         try {
             dictionary.parallelStream().forEach(plaintext -> {
@@ -43,20 +30,12 @@ public class LookupTableBuilder implements StoreHashPassword {
 
                     // Increment live reporter's counter
                     processed.incrementAndGet();
+
                 } catch (AppException e) {
                     System.err.println("\nWarning: Failed to hash password '" + plaintext + "': " + e.getMessage());
                 }
             });
 
-//            // 2. Wait for the reporter to finish
-//            reporter.interrupt();
-            
-//            try {
-//                reporter.join();
-//            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();
-//                throw new AppException("Reporter interrupted while finalizing progress.", e);
-//            }
         } catch (Exception e) {
             throw new AppException("Failed to build hash lookup table: " + e.getMessage(), e);
         }

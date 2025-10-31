@@ -1,6 +1,5 @@
 package org.example.CrackTask;
 
-import org.example.StoreHashPassword.StoreHashPassword;
 import org.example.model.User;
 
 import java.util.Collection;
@@ -12,7 +11,6 @@ public class CrackTask implements Crack {
     // 3. Lookup
     @Override
     public void crack(Collection<User> users, Map<String, String> lookupTable, AtomicLong passwordsFound) {
-        // todo: hashmap if got more data, the hashmap will overflow, add interface to handle more
         users.parallelStream().forEach(user -> {
             if (user.isFound()) {
                 return; // Skip if already found
