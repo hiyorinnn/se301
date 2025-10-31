@@ -10,6 +10,11 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+/**
+ * Writes the results of cracked passwords to a CSV file.
+ * Only users marked as found are included in the output.
+ * The CSV contains columns: user_name, hashed_password, plain_password.
+ */
 public class CsvResultWriter implements ResultWriter {
 
     private static final String HEADER = "user_name,hashed_password,plain_password\n";
@@ -31,6 +36,8 @@ public class CsvResultWriter implements ResultWriter {
             throw new AppException("Failed to write CSV file: " + path, e);
         }
     }
+}
+
 
 //    @Override
 //    public void write(String path, Collection<User> users) throws AppException {
@@ -61,4 +68,3 @@ public class CsvResultWriter implements ResultWriter {
 //            throw new AppException("Failed to write CSV file: " + path, e);
 //        }
 //    }
-}

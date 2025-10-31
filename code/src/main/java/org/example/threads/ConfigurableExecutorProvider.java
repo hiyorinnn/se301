@@ -3,27 +3,54 @@ package org.example.threads;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
+/**
+ * Provides configurable {@link ExecutorService} instances.
+ * Supports common executor configurations like fixed or cached thread pools.
+ */
 public class ConfigurableExecutorProvider extends ExecutorProvider {
 
     /**
-     * @param executorFactory: a supplier that creates the ExecutorService
+     * Creates a provider using a supplied {@link ExecutorService} factory.
+     *
+     * @param executorFactory a supplier that creates the executor service
      */
     public ConfigurableExecutorProvider(Supplier<ExecutorService> executorFactory) {
         super(executorFactory.get());
     }
 
     /**
-     * Convenience method: fixed thread pool using available CPUs
+     * Creates a provider with a fixed thread pool
+     * using the number of available CPU cores.
+     *
+     * @return a new {@code ConfigurableExecutorProvider}
      */
     public static ConfigurableExecutorProvider fixedCpuPool() {
         int cores = Runtime.getRuntime().availableProcessors();
-        return new ConfigurableExecutorProvider(() -> java.util.concurrent.Executors.newFixedThreadPool(cores));
+        return new ConfigurableExecutorProvider(
+                () -> java.util.concurrent.Executors.newFixedThreadPool(cores)
+        );
     }
 
     /**
-     * Convenience method: cached thread pool
+     * Creates a provider with a fixed thread pool of the given size.
+     *
+     * @param cores number of threads in the pool
+     * @return a new {@code ConfigurableExecutorProvider}
+     */
+    public static ConfigurableExecutorProvider fixedCpuPool(int cores) {
+        return new ConfigurableExecutorProvider(
+                () -> java.util.concurrent.Executors.newFixedThreadPool(cores)
+        );
+    }
+
+    /**
+     * Creates a provider with a cached thread pool.
+     *
+     * @return a new {@code ConfigurableExecutorProvider}
      */
     public static ConfigurableExecutorProvider cachedPool() {
-        return new ConfigurableExecutorProvider(() -> java.util.concurrent.Executors.newCachedThreadPool());
+        return new ConfigurableExecutorProvider(
+                () -> java.util.concurrent.Executors.newCachedThreadPool()
+        );
     }
 }

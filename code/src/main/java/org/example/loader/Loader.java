@@ -1,8 +1,7 @@
 package org.example.loader;
 
-// import java.util.List;
 import java.util.Set;
-import org.example.error.*;
+import org.example.error.AppException;
 
 /**
  * Generic loader interface for loading data of type T from a given path.

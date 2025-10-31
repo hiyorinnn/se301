@@ -2,8 +2,16 @@ package org.example.app;
 
 import org.example.error.AppException;
 
+/**
+ * Application entry point for running the dictionary attack.
+ * Expects three arguments: users file, dictionary file, and output file.
+ */
 public class DictionaryAttackApp {
 
+    /**
+     * Main method.
+     * Usage: java -jar <jar> <usersFile> <dictionaryFile> <outputFile>
+     */
     public static void main(String[] args) {
         if (args == null || args.length < 3) {
             System.err.println("Usage: java -jar <jar> <usersFile> <dictionaryFile> <outputFile>");

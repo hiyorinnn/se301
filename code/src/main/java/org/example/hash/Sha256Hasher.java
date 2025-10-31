@@ -6,6 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 
+/**
+ * Hashes strings using the SHA-256 algorithm.
+ * Thread-safe implementation using ThreadLocal MessageDigest.
+ */
 public class Sha256Hasher implements Hasher {
 
     private static final String ALGORITHM = "SHA-256";
@@ -19,14 +23,14 @@ public class Sha256Hasher implements Hasher {
         }
     });
 
+    /**
+     * Hashes the given input string with SHA-256 and returns its hexadecimal representation.
+     */
     @Override
     public String hash(String input) throws AppException {
         try {
             byte[] hashBytes = DIGEST.get().digest(input.getBytes(StandardCharsets.UTF_8));
-
-            // Modern, concise hex conversion
             return HexFormat.of().formatHex(hashBytes);
-
         } catch (RuntimeException e) {
             throw new AppException("SHA-256 hashing failed", e);
         }
