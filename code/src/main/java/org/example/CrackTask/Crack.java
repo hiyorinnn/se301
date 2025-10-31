@@ -1,4 +1,4 @@
-package org.example.CrackTask;
+package org.example.cracktask;
 
 import org.example.model.User;
 

@@ -1,6 +1,5 @@
 package org.example.app;
 
-import org.example.CrackTask.Crack;
 import org.example.reporter.ProgressMonitor;
 import org.example.reporter.ProgressReporter;
 import org.example.store.StoreHashPassword;
@@ -9,6 +8,7 @@ import org.example.model.User;
 import org.example.threads.ExecutorProvider;
 import org.example.threads.ConfigurableExecutorProvider;
 import org.example.io.ResultWriter;
+import org.example.cracktask.Crack;
 import org.example.error.AppException;
 
 import java.util.*;

@@ -1,12 +1,12 @@
 package org.example.app;
 
-import org.example.CrackTask.Crack;
-import org.example.CrackTask.CrackTask;
 import org.example.store.LookupTableBuilder;
 import org.example.store.StoreHashPassword;
 import org.example.loader.LoadService;
 import org.example.loader.UserLoader;
 import org.example.loader.DictionaryLoader;
+import org.example.cracktask.Crack;
+import org.example.cracktask.CrackTask;
 import org.example.hash.Hasher;
 import org.example.hash.Sha256Hasher;
 import org.example.io.ResultWriter;
