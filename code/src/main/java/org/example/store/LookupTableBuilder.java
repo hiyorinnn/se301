@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-//todo maybe decouple crack-task form dictionaryAttackRunner and Hasher with interface, break them up
 public class LookupTableBuilder implements StoreHashPassword {
     private final Hasher hasher;
 

@@ -1,6 +1,3 @@
-// to add method for each "task"
-//import title change to specific
-
 package org.example.app;
 
 import org.example.CrackTask.Crack;
@@ -53,7 +50,6 @@ public class DictionaryAttackRunner {
         // Set-up progress reporting
         CountDownLatch reporterLatch = new CountDownLatch(1);
         AtomicLong processed = new AtomicLong(0);
-
         long totalHashes = dict.size();
         ProgressReporter hashProgress = new ProgressReporter(processed, totalHashes, reporterLatch);
 
@@ -64,7 +60,7 @@ public class DictionaryAttackRunner {
                 // 2. instantiate CrackTask
                 hashToPlaintext = storeHashPwd.buildHashLookupTable(dict, processed);
 
-                // Wait for the reporter thread to print its final "100%" and exit, used latch for better consistency
+                // Wait for the reporter thread to print its final "100%" and exit.
                 reporterLatch.await();
             }
 
