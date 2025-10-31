@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Builds a lookup table that maps password hashes to their plaintext values.
  * Uses parallel processing for efficiency and supports dependency-injected hashing.
  */
-public class LookupTableBuilder implements StoreHashPassword {
+public class LookupTableBuilder implements HashLookupBuilder {
     private final Hasher hasher;
 
     // Allows injecting a custom hasher implementation

@@ -1,7 +1,7 @@
 package org.example.app;
 
 import org.example.store.LookupTableBuilder;
-import org.example.store.StoreHashPassword;
+import org.example.store.HashLookupBuilder;
 import org.example.loader.LoadService;
 import org.example.loader.UserLoader;
 import org.example.loader.DictionaryLoader;
@@ -29,7 +29,7 @@ public class AppFactory {
     public static DictionaryAttackRunner createRunner() {
         LoadService loadService = new LoadService(new UserLoader(), new DictionaryLoader());
         Hasher hasher = new Sha256Hasher();
-        StoreHashPassword storeHashPwd = new LookupTableBuilder(hasher);
+        HashLookupBuilder storeHashPwd = new LookupTableBuilder(hasher);
         ResultWriter writer = new CsvResultWriter();
         Crack cracker = new CrackTask();
 
