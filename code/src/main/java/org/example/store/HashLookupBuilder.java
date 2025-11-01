@@ -6,13 +6,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+/* Builds a hash -> plaintext lookup from a set of dictionary passwords.
+   Increments the provided counter as entries are processed.
+   Throws AppException on failure. */
 public interface HashLookupBuilder {
-    /**
-     * Builds the hash lookup table and updates the counter as entries are processed.
-     * @param dictionary The set of plaintext passwords.
-     * @param processed The counter to increment for each processed password.
-     * @return The completed hash → plaintext map.
-     * @throws AppException If hashing fails.
-     */
+    /* Create the lookup map from plaintext passwords to their hashes.
+       Implementations should update the processed counter while building
+       and return a map mapping hash -> plaintext. */
     Map<String, String> buildHashLookupTable(Set<String> dictionary, AtomicLong processed) throws AppException;
 }

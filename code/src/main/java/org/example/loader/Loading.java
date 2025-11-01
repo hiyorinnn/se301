@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 
+/* Loads users and dictionary concurrently using a provided executor. */
 public class Loading {
     private final Loader<User> userLoader;
     private final Loader<String> dictLoader;
@@ -18,15 +19,7 @@ public class Loading {
         this.dictLoader = dictLoader;
     }
 
-    /**
-     * Load users and dictionary concurrently using the provided ExecutorProvider.
-     *
-     * @param usersPath path to user file
-     * @param dictPath path to dictionary file
-     * @param provider executor provider (managed outside)
-     * @return LoadedData containing users and dictionary
-     * @throws AppException if loading fails
-     */
+    /* Load users and dictionary in parallel and return a data record. */
     public LoadedData load(String usersPath, String dictPath, ExecutorProvider provider) throws AppException {
         ExecutorService exec = provider.get();
 
@@ -34,7 +27,6 @@ public class Loading {
             CompletableFuture<Set<User>> usersFuture = supplyAsyncWithAppException(() -> userLoader.load(usersPath), exec);
             CompletableFuture<Set<String>> dictFuture = supplyAsyncWithAppException(() -> dictLoader.load(dictPath), exec);
 
-            // Join both futures and return result
             Set<User> users = usersFuture.join();
             Set<String> dict = dictFuture.join();
 
@@ -44,9 +36,7 @@ public class Loading {
         }
     }
 
-    /**
-     * Utility method to wrap AppException into CompletionException for CompletableFuture
-     */
+    /* Wrap a Loader task that may throw AppException into a CompletableFuture. */
     private <T> CompletableFuture<T> supplyAsyncWithAppException(LoaderTask<T> task, ExecutorService exec) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -62,8 +52,6 @@ public class Loading {
         T load() throws AppException;
     }
 
-    /**
-     * Simple data record for loaded users and dictionary
-     */
+    /* Simple holder for loaded users and dictionary sets. */
     public record LoadedData(Set<User> users, Set<String> dict) {}
 }

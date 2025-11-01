@@ -9,26 +9,13 @@ import java.util.stream.Stream;
 
 import org.example.error.AppException;
 
-/**
- * Loader implementation for dictionaries.
- *
- * Reads a text file line by line and loads each non-empty line as a word
- * into a set. Duplicate words are automatically ignored.
- */
+/* Loads dictionary words from a text file.
+   Each non-empty line becomes a word; duplicates are ignored. */
 public class DictionaryLoader implements Loader<String> {
 
     private final Set<String> words = new HashSet<>();
 
-    /**
-     * Loads words from a text file into a set.
-     *
-     * Each non-empty line in the file is treated as a single word.
-     * Duplicate words are ignored.
-     *
-     * @param filePath the path to the dictionary file
-     * @return a set of unique words loaded from the file
-     * @throws AppException if the file cannot be read or an I/O error occurs
-     */
+    /* Read words from the given file and return a set of unique words. */
     @Override
     public Set<String> load(String filePath) throws AppException {
         try (Stream<String> lines = Files.lines(Path.of(filePath))) {
@@ -42,13 +29,7 @@ public class DictionaryLoader implements Loader<String> {
         return words;
     }
 
-    /**
-     * Adds a word to the set of loaded words.
-     * 
-     * Duplicates are automatically ignored.
-     *
-     * @param word the word to add
-     */
+    /* Add a word to the set; duplicates are automatically ignored. */
     private void processWord(String word) {
         words.add(word);
     }

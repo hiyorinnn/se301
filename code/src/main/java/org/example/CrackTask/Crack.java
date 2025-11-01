@@ -6,13 +6,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+/* Crack strategy: try to resolve users' password hashes using a lookup table.
+   Increment the provided counter as passwords are found. */
 public interface Crack {
-    /**
-     * Attempts to crack user passwords against a pre-built lookup table.
-     *
-     * @param users The collection of users to check.
-     * @param lookupTable A map of {hash -> plaintext} for password lookup.
-     * @param passwordsFound An atomic counter to increment as passwords are found.
-     */
+    // Attempt to crack each user's password using the lookupTable and update passwordsFound.
     void crack(Collection<User> users, Map<String, String> lookupTable, AtomicLong passwordsFound);
 }

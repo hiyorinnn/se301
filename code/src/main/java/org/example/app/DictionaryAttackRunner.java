@@ -10,6 +10,12 @@ import org.example.reporter.SummaryReporter;
 
 import java.util.Map;
 
+/* Orchestrates a full dictionary attack:
+   - loads user and dictionary data
+   - builds hash lookup table
+   - performs cracking
+   - writes results
+   - prints summary */
 public class DictionaryAttackRunner {
 
     private final LoadService dataLoader;
@@ -18,6 +24,7 @@ public class DictionaryAttackRunner {
     private final ResultService resultService;
     private final SummaryReporter summaryReporter;
 
+    // wires services together from core components
     public DictionaryAttackRunner(Loading loadService,
                                   HashLookupBuilder storeHashPwd,
                                   Crack cracker,
@@ -30,6 +37,7 @@ public class DictionaryAttackRunner {
         this.summaryReporter = summaryReporter;
     }
 
+    // run the dictionary attack end-to-end
     public void run(String usersPath, String dictPath, String outputPath) throws AppException, InterruptedException {
         long start = System.currentTimeMillis();
 
