@@ -1,0 +1,94 @@
+@startuml Dictionary Attack Sequence Diagram
+
+title Dictionary Attack Application Sequence Diagram
+
+actor User
+participant DictionaryAttackApp
+participant AppFactory
+participant DictionaryAttackRunner
+participant LoadService
+participant ExecutorProvider
+participant DictionaryLoader
+participant UserLoader
+participant LookupTableBuilder
+participant LiveProgressReporter
+participant CrackTask
+participant CsvResultWriter
+
+User -> DictionaryAttackApp: main(args)
+activate DictionaryAttackApp
+
+DictionaryAttackApp -> AppFactory: createRunner()
+activate AppFactory
+AppFactory --> DictionaryAttackRunner: new DictionaryAttackRunner(...)
+deactivate AppFactory
+
+DictionaryAttackApp -> DictionaryAttackRunner: run(usersPath, dictPath, outputPath)
+activate DictionaryAttackRunner
+
+DictionaryAttackRunner -> LoadService: load(usersPath, dictPath, provider)
+activate LoadService
+
+LoadService -> ExecutorProvider: get()
+activate ExecutorProvider
+ExecutorProvider --> LoadService: executor
+deactivate ExecutorProvider
+
+LoadService -> UserLoader: load(usersPath)
+activate UserLoader
+UserLoader --> LoadService: Set<User>
+deactivate UserLoader
+
+LoadService -> DictionaryLoader: load(dictPath)
+activate DictionaryLoader
+DictionaryLoader --> LoadService: Set<String>
+deactivate DictionaryLoader
+
+LoadService --> DictionaryAttackRunner: LoadedData
+deactivate LoadService
+
+DictionaryAttackRunner -> DictionaryAttackRunner: buildHashLookupWithProgress(dict)
+activate DictionaryAttackRunner
+
+DictionaryAttackRunner -> SingleThreadProvider: new SingleThreadProvider()
+activate SingleThreadProvider
+SingleThreadProvider --> DictionaryAttackRunner: provider
+deactivate SingleThreadProvider
+
+DictionaryAttackRunner -> LiveProgressReporter: new LiveProgressReporter(...)
+activate LiveProgressReporter
+LiveProgressReporter --> DictionaryAttackRunner: reporter
+deactivate LiveProgressReporter
+
+DictionaryAttackRunner -> SingleThreadProvider: submitTask(reporter)
+activate SingleThreadProvider
+SingleThreadProvider --> DictionaryAttackRunner
+deactivate SingleThreadProvider
+
+DictionaryAttackRunner -> LookupTableBuilder: buildHashLookupTable(dict, processed)
+activate LookupTableBuilder
+LookupTableBuilder --> DictionaryAttackRunner: Map<String, String>
+deactivate LookupTableBuilder
+
+DictionaryAttackRunner -> DictionaryAttackRunner: performCrack(users, hashToPlaintext)
+activate DictionaryAttackRunner
+
+DictionaryAttackRunner -> CrackTask: crack(users, lookupTable, passwordsFound)
+activate CrackTask
+CrackTask --> DictionaryAttackRunner
+deactivate CrackTask
+
+DictionaryAttackRunner --> DictionaryAttackRunner
+deactivate DictionaryAttackRunner
+
+DictionaryAttackRunner -> CsvResultWriter: write(outputPath, users)
+activate CsvResultWriter
+CsvResultWriter --> DictionaryAttackRunner
+deactivate CsvResultWriter
+
+DictionaryAttackRunner -> DictionaryAttackRunner: printSummary(...)
+DictionaryAttackRunner --> User
+deactivate DictionaryAttackRunner
+deactivate DictionaryAttackApp
+
+@enduml

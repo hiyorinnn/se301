@@ -1,0 +1,230 @@
+@startuml Dictionary Attack Application
+
+title Dictionary Attack Application Class Diagram
+
+package "org.example.app" as app {
+    class DictionaryAttackApp {
+        + {static} main(args: String[]): void
+    }
+
+    class AppFactory {
+        + {static} createRunner(): DictionaryAttackRunner
+    }
+
+    class DictionaryAttackRunner {
+        - loadService: LoadService
+        - resultWriter: ResultWriter
+        - storeHashPwd: HashLookupBuilder
+        - cracker: Crack
+        + run(usersPath: String, dictPath: String, outputPath: String): void
+        - loadData(usersPath: String, dictPath: String): LoadedData
+        - buildHashLookupWithProgress(dict: Set<String>): Map<String, String>
+        - performCrack(users: Set<User>, hashToPlaintext: Map<String, String>): long
+        - writeResults(outputPath: String, users: Set<User>): void
+        - printSummary(totalUsers: long, totalHashes: long, passwordsFound: long, startTime: long): void
+    }
+}
+
+package "org.example.loader" as loader {
+    interface Loader<T> {
+        + load(path: String): Set<T>
+    }
+
+    class DictionaryLoader {
+        - words: Set<String>
+        + load(filePath: String): Set<String>
+        - processWord(word: String): void
+    }
+
+    class UserLoader {
+        + load(filename: String): Set<User>
+    }
+
+    class LoadService {
+        - userLoader: Loader<User>
+        - dictLoader: Loader<String>
+        + load(usersPath: String, dictPath: String, provider: ExecutorProvider): LoadedData
+    }
+
+    class LoadedData {
+        + users: Set<User>
+        + dict: Set<String>
+    }
+}
+
+package "org.example.hash" as hash {
+    interface Hasher {
+        + hash(input: String): String
+    }
+
+    class Sha256Hasher {
+        - ALGORITHM: String
+        - DIGEST: ThreadLocal<MessageDigest>
+        + hash(input: String): String
+    }
+}
+
+package "org.example.store" as store {
+    interface HashLookupBuilder {
+        + buildHashLookupTable(dictionary: Set<String>, processed: AtomicLong): Map<String, String>
+    }
+
+    class LookupTableBuilder {
+        - hasher: Hasher
+        + LookupTableBuilder(hasher: Hasher)
+        + buildHashLookupTable(dictionary: Set<String>, processed: AtomicLong): Map<String, String>
+    }
+}
+
+package "org.example.cracktask" as cracktask {
+    interface Crack {
+        + crack(users: Collection<User>, lookupTable: Map<String, String>, passwordsFound: AtomicLong): void
+    }
+
+    class CrackTask {
+        + crack(users: Collection<User>, lookupTable: Map<String, String>, passwordsFound: AtomicLong): void
+    }
+}
+
+package "org.example.io" as io {
+    interface ResultWriter {
+        + write(path: String, users: Collection<User>): void
+    }
+
+    class CsvResultWriter {
+        - HEADER: String
+        + write(path: String, users: Collection<User>): void
+    }
+}
+
+package "org.example.threads" as threads {
+    abstract class ExecutorProvider {
+        # executor: ExecutorService
+        + get(): ExecutorService
+        + close(): void
+    }
+
+    class ConfigurableExecutorProvider {
+        + ConfigurableExecutorProvider(executorFactory: Supplier<ExecutorService>)
+        + {static} fixedCpuPool(): ConfigurableExecutorProvider
+        + {static} fixedCpuPool(cores: int): ConfigurableExecutorProvider
+        + {static} cachedPool(): ConfigurableExecutorProvider
+    }
+
+    class SingleThreadProvider {
+        + SingleThreadProvider()
+        + submitTask(task: Runnable): void
+    }
+}
+
+package "org.example.reporter" as reporter {
+    interface ProgressFormatter {
+        + format(count: long, total: long): String
+    }
+
+    class ConsoleProgressFormatter {
+        - TIME_FORMAT: DateTimeFormatter
+        + format(count: long, total: long): String
+    }
+
+    class LiveProgressReporter {
+        - counter: AtomicLong
+        - total: long
+        - latch: CountDownLatch
+        - formatter: ProgressFormatter
+        + LiveProgressReporter(counter: AtomicLong, total: long, latch: CountDownLatch, formatter: ProgressFormatter)
+        + run(): void
+    }
+}
+
+package "org.example.model" as model {
+    class User {
+        - username: String
+        - hashedPassword: String
+        - found: boolean
+        - foundPassword: String
+        + User(username: String, hashedPassword: String)
+        + getUsername(): String
+        + getHashedPassword(): String
+        + isFound(): boolean
+        + getFoundPassword(): String
+        + markFound(plain: String): void
+        + equals(o: Object): boolean
+        + hashCode(): int
+    }
+}
+
+package "org.example.error" as error {
+    class AppException {
+        + AppException(message: String)
+        + AppException(message: String, cause: Throwable)
+    }
+}
+
+' Relationships
+DictionaryAttackApp ..> AppFactory : uses
+AppFactory ..> DictionaryAttackRunner : creates
+DictionaryAttackRunner --> LoadService : uses
+DictionaryAttackRunner --> ResultWriter : uses
+DictionaryAttackRunner --> HashLookupBuilder : uses
+DictionaryAttackRunner --> Crack : uses
+DictionaryAttackRunner --> ExecutorProvider : uses
+DictionaryAttackRunner --> LiveProgressReporter : uses
+
+LoadService --> Loader : uses
+LoadService --> ExecutorProvider : uses
+LoadService --> LoadedData : returns
+
+Loader <|.. DictionaryLoader : implements
+Loader <|.. UserLoader : implements
+
+DictionaryLoader --> AppException : throws
+UserLoader --> AppException : throws
+UserLoader --> User : creates
+
+LoadService --> AppException : throws
+
+Hasher <|.. Sha256Hasher : implements
+Sha256Hasher --> AppException : throws
+
+HashLookupBuilder <|.. LookupTableBuilder : implements
+LookupTableBuilder --> Hasher : uses
+LookupTableBuilder --> AppException : throws
+
+Crack <|.. CrackTask : implements
+
+ResultWriter <|.. CsvResultWriter : implements
+CsvResultWriter --> AppException : throws
+
+ExecutorProvider <|-- ConfigurableExecutorProvider : extends
+ExecutorProvider <|-- SingleThreadProvider : extends
+
+ProgressFormatter <|.. ConsoleProgressFormatter : implements
+
+LiveProgressReporter --> ProgressFormatter : uses
+
+UserLoader --> User : creates
+CsvResultWriter --> User : uses
+CrackTask --> User : modifies
+
+AppException <-- DictionaryAttackRunner : catches
+AppException <-- LoadService : throws
+AppException <-- LookupTableBuilder : throws
+AppException <-- Sha256Hasher : throws
+AppException <-- CsvResultWriter : throws
+AppException <-- DictionaryLoader : throws
+AppException <-- UserLoader : throws
+
+legend right
+  |= Symbol |= Meaning |
+  | □ | Abstract Class (cannot be instantiated directly) |
+  | ■ | Concrete Class (can be instantiated) |
+  | ○ | Interface (defines contract, no implementation) |
+  | <|-- | Extends/Inherits (subclass relationship) |
+  | <|.. | Implements (class implements interface) |
+  | --> | Association/Uses (one class uses another) |
+  | <-- | Throws/Catches (exception handling relationship) |
+  | ..> | Dependency (weaker usage relationship) |
+endlegend
+
+@enduml
