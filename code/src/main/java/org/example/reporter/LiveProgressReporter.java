@@ -3,28 +3,25 @@ package org.example.reporter;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
-// A class that reports the progress of a task in real-time to the console.
-// It monitors an atomic counter and prints updates using a custom formatter
-// until the task is complete.
+/**
+ * Reports the progress of a task to the console in real-time.
+ * Monitors a counter and prints updates using a formatter.
+ * Adjusts the reporting interval based on progress speed.
+ * Signals completion via a latch when the task finishes or is interrupted.
+ */
+
 public class LiveProgressReporter implements Runnable {
 
-    // The counter that tracks the current progress.
     private final AtomicLong counter;
-
-    // The total value representing task completion.
     private final long total;
-
-    // Latch used to signal when reporting has finished.
     private final CountDownLatch latch;
-
-    // Formatter used to generate the progress display string.
     private final ProgressFormatter formatter;
 
-    // Constructs a LiveProgressReporter with the given counter, total, latch, and formatter.
-    // counter: the AtomicLong counter tracking progress.
-    // total: the target value for completion.
-    // latch: the CountDownLatch to signal completion.
-    // formatter: the ProgressFormatter to format the progress output.
+    private static final long INITIAL_SLEEP_MS = 10L;
+    private static final long MAX_SLEEP_MS = 100L;
+    private static final long UPDATE_THRESHOLD = 100L;
+    private static final int UNCHANGED_LIMIT = 5;
+
     public LiveProgressReporter(AtomicLong counter, long total, CountDownLatch latch, ProgressFormatter formatter) {
         this.counter = counter;
         this.total = total;
@@ -32,42 +29,45 @@ public class LiveProgressReporter implements Runnable {
         this.formatter = formatter;
     }
 
-    // Starts the progress reporting loop.
-    // Continuously prints progress updates to the console whenever the counter changes.
-    // Stops when the counter reaches or exceeds total or if the thread is interrupted.
-    // Always decrements the latch at the end to signal completion.
     @Override
     public void run() {
         try {
             long lastCount = -1;
+            long sleepMs = INITIAL_SLEEP_MS;
+            int unchangedIterations = 0;
 
             while (true) {
                 long count = counter.get();
+                long delta = count - lastCount;
 
-                // Only print if the count has changed since the last iteration
-                if (count != lastCount) {
-                    System.out.print("\r" + formatter.format(count, total)); // overwrite current line
+                boolean shouldUpdate = delta >= UPDATE_THRESHOLD || delta > 0 || count >= total;
+
+                if (shouldUpdate) {
+                    System.out.print("\r" + formatter.format(count, total));
                     lastCount = count;
+                    unchangedIterations = 0;
+                    sleepMs = INITIAL_SLEEP_MS;
+                } else {
+                    unchangedIterations++;
+                    if (unchangedIterations > UNCHANGED_LIMIT) {
+                        sleepMs = Math.min(sleepMs * 2, MAX_SLEEP_MS);
+                    }
                 }
 
-                // Stop reporting if progress is complete
                 if (count >= total) {
-                    System.out.println(); // print final newline
+                    System.out.println();
                     break;
                 }
 
                 try {
-                    // Sleep briefly to reduce CPU usage
-                    Thread.sleep(50L);
+                    Thread.sleep(sleepMs);
                 } catch (InterruptedException e) {
-                    // Restore interrupt status and exit
                     Thread.currentThread().interrupt();
-                    System.err.println("\nProgress reporter was interrupted.");
+                    System.err.println("\nProgress reporter interrupted.");
                     break;
                 }
             }
         } finally {
-            // Ensure the latch is always decremented even if an exception occurs
             latch.countDown();
         }
     }
