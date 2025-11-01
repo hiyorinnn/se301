@@ -2,6 +2,7 @@ package org.example.threads;
 
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
+import java.util.concurrent.Executors;
 
 /**
  * Provides configurable {@link ExecutorService} instances.
@@ -27,7 +28,7 @@ public class ConfigurableExecutorProvider extends ExecutorProvider {
     public static ConfigurableExecutorProvider fixedCpuPool() {
         int cores = Runtime.getRuntime().availableProcessors();
         return new ConfigurableExecutorProvider(
-                () -> java.util.concurrent.Executors.newFixedThreadPool(cores)
+                () -> Executors.newFixedThreadPool(cores)
         );
     }
 
@@ -39,7 +40,7 @@ public class ConfigurableExecutorProvider extends ExecutorProvider {
      */
     public static ConfigurableExecutorProvider fixedCpuPool(int cores) {
         return new ConfigurableExecutorProvider(
-                () -> java.util.concurrent.Executors.newFixedThreadPool(cores)
+                () -> Executors.newFixedThreadPool(cores)
         );
     }
 
@@ -50,7 +51,7 @@ public class ConfigurableExecutorProvider extends ExecutorProvider {
      */
     public static ConfigurableExecutorProvider cachedPool() {
         return new ConfigurableExecutorProvider(
-                () -> java.util.concurrent.Executors.newCachedThreadPool()
+                () -> Executors.newCachedThreadPool()
         );
     }
 }

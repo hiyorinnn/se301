@@ -9,11 +9,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 
-public class LoadService {
+public class Loading {
     private final Loader<User> userLoader;
     private final Loader<String> dictLoader;
 
-    public LoadService(Loader<User> userLoader, Loader<String> dictLoader) {
+    public Loading(Loader<User> userLoader, Loader<String> dictLoader) {
         this.userLoader = userLoader;
         this.dictLoader = dictLoader;
     }

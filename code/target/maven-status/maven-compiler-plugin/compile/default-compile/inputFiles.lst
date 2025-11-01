@@ -10,7 +10,7 @@ c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\examp
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\io\ResultWriter.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\loader\DictionaryLoader.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\loader\Loader.java
-c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\loader\LoadService.java
+c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\loader\Loading.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\loader\UserLoader.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\model\User.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\reporter\ConsoleProgressFormatter.java
@@ -19,8 +19,8 @@ c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\examp
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\reporter\ProgressFormatter.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\reporter\SummaryReporter.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\CrackService.java
-c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\DataLoader.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\HashLookupService.java
+c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\LoadService.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\ResultService.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\store\HashLookupBuilder.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\store\LookupTableBuilder.java

@@ -1,6 +1,6 @@
 package org.example.app;
 
-import org.example.loader.LoadService;
+import org.example.loader.Loading;
 import org.example.loader.UserLoader;
 import org.example.loader.DictionaryLoader;
 import org.example.store.HashLookupBuilder;
@@ -33,7 +33,7 @@ public class AppFactory {
     }
 
     public DictionaryAttackRunner createRunner() {
-        LoadService loadService = new LoadService(new UserLoader(), new DictionaryLoader());
+        Loading loadService = new Loading(new UserLoader(), new DictionaryLoader());
         HashLookupBuilder hashBuilder = new LookupTableBuilder(hasher);
 
         return new DictionaryAttackRunner(loadService, hashBuilder, cracker, writer, summaryReporter);

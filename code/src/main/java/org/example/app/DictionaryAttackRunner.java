@@ -1,6 +1,6 @@
 package org.example.app;
 
-import org.example.loader.LoadService;
+import org.example.loader.Loading;
 import org.example.service.*;
 import org.example.store.HashLookupBuilder;
 import org.example.io.ResultWriter;
@@ -12,18 +12,18 @@ import java.util.Map;
 
 public class DictionaryAttackRunner {
 
-    private final DataLoader dataLoader;
+    private final LoadService dataLoader;
     private final HashLookupService hashLookupService;
     private final CrackService crackService;
     private final ResultService resultService;
     private final SummaryReporter summaryReporter;
 
-    public DictionaryAttackRunner(LoadService loadService,
+    public DictionaryAttackRunner(Loading loadService,
                                   HashLookupBuilder storeHashPwd,
                                   Crack cracker,
                                   ResultWriter writer,
                                   SummaryReporter summaryReporter) {
-        this.dataLoader = new DataLoader(loadService);
+        this.dataLoader = new LoadService(loadService);
         this.hashLookupService = new HashLookupService(storeHashPwd);
         this.crackService = new CrackService(cracker);
         this.resultService = new ResultService(writer);
