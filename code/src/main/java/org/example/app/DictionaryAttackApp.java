@@ -22,6 +22,15 @@ public class DictionaryAttackApp {
             AppFactory factory = new AppFactory();
             DictionaryAttackRunner runner = factory.createRunner();
             runner.run(args[0], args[1], args[2]);
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Interrupted: shutting down.");
+            if (System.getenv().containsKey("VERBOSE")) {
+                e.printStackTrace();
+            }
+            System.exit(130);
+            
         } catch (AppException e) {
             System.err.println("Error: " + e.getMessage());
             if (System.getenv().containsKey("VERBOSE")) {

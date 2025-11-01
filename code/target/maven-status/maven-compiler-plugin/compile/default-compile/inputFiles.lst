@@ -14,8 +14,14 @@ c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\examp
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\loader\UserLoader.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\model\User.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\reporter\ConsoleProgressFormatter.java
+c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\reporter\ConsoleSummaryReporter.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\reporter\LiveProgressReporter.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\reporter\ProgressFormatter.java
+c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\reporter\SummaryReporter.java
+c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\CrackService.java
+c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\DataLoader.java
+c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\HashLookupService.java
+c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\service\ResultService.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\store\HashLookupBuilder.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\store\LookupTableBuilder.java
 c:\Users\xinyi\OneDrive\Documents\GitHub\itsa\se301\code\src\main\java\org\example\threads\ConfigurableExecutorProvider.java
