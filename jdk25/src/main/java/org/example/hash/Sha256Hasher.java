@@ -9,7 +9,6 @@ import java.util.HexFormat;
 /**
  * Hashes strings using the SHA-256 algorithm.
  * Thread-safe implementation using ThreadLocal MessageDigest.
- * JDK 25: Uses HexVectorEncoder for optimized hex encoding when available.
  */
 public class Sha256Hasher implements Hasher {
 
@@ -26,19 +25,12 @@ public class Sha256Hasher implements Hasher {
 
     /**
      * Hashes the given input string with SHA-256 and returns its hexadecimal representation.
-     * JDK 25: Uses HexVectorEncoder for performance when available, falls back to HexFormat.
      */
     @Override
     public String hash(String input) throws AppException {
         try {
             byte[] hashBytes = DIGEST.get().digest(input.getBytes(StandardCharsets.UTF_8));
-
-            try {
-                return HexVectorEncoder.encodeToHex(hashBytes);
-            } catch (UnsupportedOperationException | LinkageError e) {
-                return HexFormat.of().formatHex(hashBytes);
-            }
-
+            return HexFormat.of().formatHex(hashBytes);
         } catch (RuntimeException e) {
             throw new AppException("SHA-256 hashing failed", e);
         }

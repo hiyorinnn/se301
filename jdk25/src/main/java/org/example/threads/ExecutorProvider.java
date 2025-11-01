@@ -1,6 +1,5 @@
 package org.example.threads;
 
-import java.lang.ScopedValue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -11,13 +10,10 @@ import java.util.concurrent.TimeUnit;
  * the type and configuration of the executor.
  * Implements AutoCloseable so it can be used in try-with-resources blocks,
  * automatically shutting down the executor when done.
- * JDK 25: Uses ScopedValue for structured concurrency support.
  */
 public abstract class ExecutorProvider implements AutoCloseable {
     
     private static final int SHUTDOWN_TIMEOUT_SECONDS = 5;
-    
-    public static final ScopedValue<ExecutorService> CURRENT_EXECUTOR = ScopedValue.newInstance();
     
     /**
      * The underlying ExecutorService managed by this provider.
@@ -43,20 +39,6 @@ public abstract class ExecutorProvider implements AutoCloseable {
      */
     public ExecutorService get() {
         return executor;
-    }
-
-    public <T> T executeWithContext(java.util.concurrent.Callable<T> task) throws Exception {
-        return ScopedValue.where(CURRENT_EXECUTOR, executor).call(() -> {
-            try {
-                return task.call();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    public void runWithContext(Runnable task) {
-        ScopedValue.where(CURRENT_EXECUTOR, executor).run(task);
     }
 
     /**

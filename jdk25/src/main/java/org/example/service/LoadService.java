@@ -5,7 +5,7 @@ import org.example.error.AppException;
 import org.example.threads.ConfigurableExecutorProvider;
 
 /* Thin wrapper that runs the Loading implementation using
-   a configurable fixed-size executor and returns loaded data. */
+   an executor optimized for I/O-bound operations. */
 public class LoadService {
     private final Loading loadService;
 
@@ -13,8 +13,7 @@ public class LoadService {
         this.loadService = loadService;
     }
 
-    /* Load users and dictionary concurrently using a small thread pool.
-       Returns loaded data and ensures the executor is properly closed. */
+    /* Load users and dictionary concurrently using a fixed thread pool. */
     public Loading.LoadedData load(String usersPath, String dictPath, int numLoadTasks) throws AppException {
         try (var loadProvider = ConfigurableExecutorProvider.fixedCpuPool(numLoadTasks)) {
             return loadService.load(usersPath, dictPath, loadProvider);

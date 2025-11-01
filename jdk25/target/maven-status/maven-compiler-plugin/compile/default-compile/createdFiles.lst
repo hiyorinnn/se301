@@ -23,7 +23,6 @@ org\example\model\User.class
 org\example\store\LookupTableBuilder.class
 org\example\reporter\ConsoleProgressFormatter.class
 org\example\loader\Loading$LoaderTask.class
-org\example\hash\HexVectorEncoder.class
 org\example\reporter\ProgressFormatter.class
 org\example\hash\Sha256Hasher.class
 org\example\reporter\LiveProgressReporter.class
