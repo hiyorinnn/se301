@@ -23,30 +23,43 @@ public class LoadService {
      *
      * @param usersPath path to user file
      * @param dictPath path to dictionary file
-     * @param provider executor provider (can be CPU pool, cached pool, or virtual threads)
+     * @param provider executor provider (managed outside)
      * @return LoadedData containing users and dictionary
-     * @throws AppException if loading fails or is interrupted
+     * @throws AppException if loading fails
      */
     public LoadedData load(String usersPath, String dictPath, ExecutorProvider provider) throws AppException {
         ExecutorService exec = provider.get();
 
         try {
-            CompletableFuture<Set<User>> usersFuture = CompletableFuture.supplyAsync(() -> {
-                try { return userLoader.load(usersPath); } 
-                catch (AppException e) { throw new CompletionException(e); }
-            }, exec);
+            CompletableFuture<Set<User>> usersFuture = supplyAsyncWithAppException(() -> userLoader.load(usersPath), exec);
+            CompletableFuture<Set<String>> dictFuture = supplyAsyncWithAppException(() -> dictLoader.load(dictPath), exec);
 
-            CompletableFuture<Set<String>> dictFuture = CompletableFuture.supplyAsync(() -> {
-                try { return dictLoader.load(dictPath); } 
-                catch (AppException e) { throw new CompletionException(e); }
-            }, exec);
+            // Join both futures and return result
+            Set<User> users = usersFuture.join();
+            Set<String> dict = dictFuture.join();
 
-            CompletableFuture.allOf(usersFuture, dictFuture).join();
-
-            return new LoadedData(usersFuture.join(), dictFuture.join());
+            return new LoadedData(users, dict);
         } catch (CompletionException e) {
             throw new AppException("Failed during concurrent file loading", e.getCause());
         }
+    }
+
+    /**
+     * Utility method to wrap AppException into CompletionException for CompletableFuture
+     */
+    private <T> CompletableFuture<T> supplyAsyncWithAppException(LoaderTask<T> task, ExecutorService exec) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return task.load();
+            } catch (AppException e) {
+                throw new CompletionException(e);
+            }
+        }, exec);
+    }
+
+    @FunctionalInterface
+    private interface LoaderTask<T> {
+        T load() throws AppException;
     }
 
     /**
