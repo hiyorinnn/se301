@@ -1,5 +1,3 @@
-//to implement structured concurrency
-
 package org.example.threads;
 
 import java.util.concurrent.ExecutorService;
@@ -14,7 +12,9 @@ import java.util.concurrent.TimeUnit;
  * automatically shutting down the executor when done.
  */
 public abstract class ExecutorProvider implements AutoCloseable {
-    
+
+    private static final int SHUTDOWN_TIMEOUT_SECONDS = 5;
+
     /**
      * The underlying ExecutorService managed by this provider.
      */
@@ -49,7 +49,7 @@ public abstract class ExecutorProvider implements AutoCloseable {
     public void close() {
         executor.shutdown();
         try {
-            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+            if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
             }
         } catch (InterruptedException e) {

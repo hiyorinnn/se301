@@ -18,6 +18,8 @@ import java.util.Map;
    - prints summary */
 public class DictionaryAttackRunner {
 
+    private static final int CONCURRENT_LOAD_TASKS = 2;
+
     private final LoadService dataLoader;
     private final HashLookupService hashLookupService;
     private final CrackService crackService;
@@ -41,7 +43,7 @@ public class DictionaryAttackRunner {
     public void run(String usersPath, String dictPath, String outputPath) throws AppException, InterruptedException {
         long start = System.currentTimeMillis();
 
-        var data = dataLoader.load(usersPath, dictPath, 2);
+        var data = dataLoader.load(usersPath, dictPath, CONCURRENT_LOAD_TASKS);
 
         Map<String, String> hashToPlaintext = hashLookupService.buildWithProgress(data.dict());
 

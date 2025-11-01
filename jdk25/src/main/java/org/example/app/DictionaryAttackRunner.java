@@ -1,59 +1,58 @@
 package org.example.app;
 
-import org.example.loader.*;
-import org.example.model.*;
-import org.example.threads.ExecutorProvider;
-import org.example.io.*;
-import org.example.CrackTask.CrackTask;
-import org.example.PasswordHashStore.LookupTableBuilder;
+import org.example.loader.Loading;
+import org.example.service.*;
+import org.example.store.HashLookupBuilder;
+import org.example.io.ResultWriter;
+import org.example.cracktask.Crack;
 import org.example.error.AppException;
-import org.example.hash.*;
-import org.example.threads.*;
+import org.example.reporter.SummaryReporter;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Map;
 
+/* Orchestrates a full dictionary attack:
+   - loads user and dictionary data
+   - builds hash lookup table
+   - performs cracking
+   - writes results
+   - prints summary */
 public class DictionaryAttackRunner {
 
-    private final LoadService loadService;
-    private final Hasher hasher;
-    private final ResultWriter resultWriter;
+    private static final int CONCURRENT_LOAD_TASKS = 2;
 
-    public DictionaryAttackRunner(LoadService loadService,
-                                  Hasher hasher,
-                                  ResultWriter resultWriter) {
-        this.loadService = loadService;
-        this.hasher = hasher;
-        this.resultWriter = resultWriter;
+    private final LoadService dataLoader;
+    private final HashLookupService hashLookupService;
+    private final CrackService crackService;
+    private final ResultService resultService;
+    private final SummaryReporter summaryReporter;
+
+    // wires services together from core components
+    public DictionaryAttackRunner(Loading loadService,
+                                  HashLookupBuilder storeHashPwd,
+                                  Crack cracker,
+                                  ResultWriter writer,
+                                  SummaryReporter summaryReporter) {
+        this.dataLoader = new LoadService(loadService);
+        this.hashLookupService = new HashLookupService(storeHashPwd);
+        this.crackService = new CrackService(cracker);
+        this.resultService = new ResultService(writer);
+        this.summaryReporter = summaryReporter;
     }
 
-    public void run(String usersPath, String dictPath, String outputPath) throws AppException {
+    // run the dictionary attack end-to-end
+    public void run(String usersPath, String dictPath, String outputPath) throws AppException, InterruptedException {
         long start = System.currentTimeMillis();
 
-        LoadService.LoadedData data;
-        try (ExecutorProvider ioProvider = ConfigurableExecutorProvider.fixedCpuPool()) {
-            data = loadService.load(usersPath, dictPath, ioProvider);
-        }
+        var data = dataLoader.load(usersPath, dictPath, CONCURRENT_LOAD_TASKS);
 
-        Set<User> users = data.users();
-        Set<String> dict = data.dict();
+        Map<String, String> hashToPlaintext = hashLookupService.buildWithProgress(data.dict());
 
-        LookupTableBuilder hashPwd = new LookupTableBuilder(dict, hasher);
-        Map<String, String> hashToPlaintext = hashPwd.buildHashLookupTable();
+        long passwordsFound = crackService.crackAll(data.users(), hashToPlaintext);
 
-        long totalUsers = users.size();
-        System.out.println("Starting attack with " + totalUsers + " total tasks...");
+        resultService.write(outputPath, data.users());
 
-        AtomicLong passwordsFound = new AtomicLong(0);
-        CrackTask cracker = new CrackTask(users, hashToPlaintext, passwordsFound);
-        cracker.crack();
+        long elapsed = System.currentTimeMillis() - start;
 
-        System.out.println();
-        System.out.println("Total passwords found: " + passwordsFound);
-        System.out.println("Total hashes computed: " + hashToPlaintext.size());
-        System.out.println("Total time spent (ms): " + (System.currentTimeMillis() - start));
-
-        resultWriter.write(outputPath, data.users());
+        summaryReporter.printSummary(data.users().size(), hashToPlaintext.size(), passwordsFound, elapsed);
     }
-
 }

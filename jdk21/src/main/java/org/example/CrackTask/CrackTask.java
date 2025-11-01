@@ -26,8 +26,10 @@ public class CrackTask implements Crack {
             String plainPassword = lookupTable.get(user.getHashedPassword());
 
             if (plainPassword != null) {
-                user.markFound(plainPassword);
-                passwordsFound.incrementAndGet();
+                // Thread-safe: markFound() is synchronized and returns false if already found
+                if (user.markFound(plainPassword)) {
+                    passwordsFound.incrementAndGet();
+                }
             }
         });
     }

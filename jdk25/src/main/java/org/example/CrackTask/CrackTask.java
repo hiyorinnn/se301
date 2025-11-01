@@ -1,4 +1,4 @@
-package org.example.CrackTask;
+package org.example.cracktask;
 
 import org.example.model.User;
 
@@ -6,36 +6,31 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class CrackTask {
-    private final AtomicLong passwordsFound;
-    private final Collection<User> users;
-    private final Map<String, String> lookupTable;
+/**
+ * Attempts to crack user passwords by looking them up in a precomputed hash table.
+ * Uses parallel processing for efficiency.
+ */
+public class CrackTask implements Crack {
 
-    public CrackTask(Collection<User> users, Map<String, String> lookupTable, AtomicLong passwordsFound){
-        this.users = users;
-        this.lookupTable = lookupTable;
-        this.passwordsFound = passwordsFound;
-    }
-
-    public void crack() {
+    /**
+     * Checks each user's hashed password against the lookup table.
+     * If found, marks the user as found and increments the counter.
+     */
+    @Override
+    public void crack(Collection<User> users, Map<String, String> lookupTable, AtomicLong passwordsFound) {
         users.parallelStream().forEach(user -> {
-            synchronized (user) {
-                if (user.isFound()) {
-                    return;
-                }
+            if (user.isFound()) {
+                return; // Skip if already found
             }
 
             String plainPassword = lookupTable.get(user.getHashedPassword());
 
             if (plainPassword != null) {
-                synchronized (user) {
-                    if (!user.isFound()) {
-                        user.markFound(plainPassword);
-                        passwordsFound.incrementAndGet();
-                    }
+                // Thread-safe: markFound() is synchronized and returns false if already found
+                if (user.markFound(plainPassword)) {
+                    passwordsFound.incrementAndGet();
                 }
             }
-
         });
     }
 }

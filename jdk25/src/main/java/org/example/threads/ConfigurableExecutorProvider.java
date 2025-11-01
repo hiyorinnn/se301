@@ -21,6 +21,13 @@ public class ConfigurableExecutorProvider extends ExecutorProvider {
     }
 
     /**
+     * Convenience method: fixed thread pool with the given number of threads
+     */
+    public static ConfigurableExecutorProvider fixedCpuPool(int cores) {
+        return new ConfigurableExecutorProvider(() -> java.util.concurrent.Executors.newFixedThreadPool(cores));
+    }
+
+    /**
      * Convenience method: cached thread pool
      */
     public static ConfigurableExecutorProvider cachedPool() {

@@ -1,5 +1,3 @@
-//to implement structured concurrency
-
 package org.example.threads;
 
 import java.lang.ScopedValue;
@@ -13,8 +11,11 @@ import java.util.concurrent.TimeUnit;
  * the type and configuration of the executor.
  * Implements AutoCloseable so it can be used in try-with-resources blocks,
  * automatically shutting down the executor when done.
+ * JDK 25: Uses ScopedValue for structured concurrency support.
  */
 public abstract class ExecutorProvider implements AutoCloseable {
+    
+    private static final int SHUTDOWN_TIMEOUT_SECONDS = 5;
     
     public static final ScopedValue<ExecutorService> CURRENT_EXECUTOR = ScopedValue.newInstance();
     
@@ -69,7 +70,7 @@ public abstract class ExecutorProvider implements AutoCloseable {
     public void close() {
         executor.shutdown();
         try {
-            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+            if (!executor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
             }
         } catch (InterruptedException e) {

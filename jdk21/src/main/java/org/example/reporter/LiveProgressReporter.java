@@ -21,6 +21,7 @@ public class LiveProgressReporter implements Runnable {
     private static final long MAX_SLEEP_MS = 100L;
     private static final long UPDATE_THRESHOLD = 100L;
     private static final int UNCHANGED_LIMIT = 5;
+    private static final int SPACE_PADDING_BASE = 20;
 
     public LiveProgressReporter(AtomicLong counter, long total, CountDownLatch latch, ProgressFormatter formatter) {
         this.counter = counter;
@@ -44,7 +45,7 @@ public class LiveProgressReporter implements Runnable {
 
                 if (shouldUpdate) {
                     String output = formatter.format(count, total);
-                    System.out.print("\r" + output + " ".repeat(Math.max(0, 20 - output.length() % 20)));
+                    System.out.print("\r" + output + " ".repeat(Math.max(0, SPACE_PADDING_BASE - output.length() % SPACE_PADDING_BASE)));
                     lastCount = count;
                     unchangedIterations = 0;
                     sleepMs = INITIAL_SLEEP_MS;
