@@ -43,7 +43,8 @@ public class LiveProgressReporter implements Runnable {
                 boolean shouldUpdate = delta >= UPDATE_THRESHOLD || delta > 0 || count >= total;
 
                 if (shouldUpdate) {
-                    System.out.print("\r" + formatter.format(count, total));
+                    String output = formatter.format(count, total);
+                    System.out.print("\r" + output + " ".repeat(Math.max(0, 20 - output.length() % 20)));
                     lastCount = count;
                     unchangedIterations = 0;
                     sleepMs = INITIAL_SLEEP_MS;
