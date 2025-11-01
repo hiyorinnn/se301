@@ -13,8 +13,17 @@ import org.example.io.ResultWriter;
 import org.example.io.CsvResultWriter;
 
 /**
- * SOLID-compliant factory for creating DictionaryAttackRunner.
+ * AppFactory composes and returns a ready-to-use DictionaryAttackRunner.
+ * 
+ * Supports dependency injection of Hasher, ResultWriter, and Crack, 
+ * or uses defaults (SHA-256 hasher, CSV writer, CrackTask).
+ *
+ * Example:
+ * AppFactory factory = new AppFactory();
+ * DictionaryAttackRunner runner = factory.createRunner();
+ * runner.run();
  */
+
 public class AppFactory {
 
     private final Hasher hasher;
