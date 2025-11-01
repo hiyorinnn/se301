@@ -1,7 +1,7 @@
 package org.example.app;
 
-import org.example.store.LookupTableBuilder;
 import org.example.store.HashLookupBuilder;
+import org.example.store.LookupTableBuilder;
 import org.example.loader.LoadService;
 import org.example.loader.UserLoader;
 import org.example.loader.DictionaryLoader;
@@ -13,25 +13,36 @@ import org.example.io.ResultWriter;
 import org.example.io.CsvResultWriter;
 
 /**
- * Creates and wires together the default application components.
- * Keeps construction in one place for easy replacement in tests.
+ * SOLID-compliant factory for creating DictionaryAttackRunner.
  */
 public class AppFactory {
 
+    private final Hasher hasher;
+    private final ResultWriter writer;
+    private final Crack cracker;
+
     /**
-     * Builds the default DictionaryAttackRunner with:
-     * - file loaders,
-     * - SHA-256 hasher,
-     * - lookup-table store,
-     * - CSV result writer,
-     * - and the cracking task.
+     * Allows injection of configurable components, fully adhering to DIP and OCP.
      */
-    public static DictionaryAttackRunner createRunner() {
+    public AppFactory(Hasher hasher, ResultWriter writer, Crack cracker) {
+        this.hasher = hasher;
+        this.writer = writer;
+        this.cracker = cracker;
+    }
+
+    /**
+     * Default constructor with standard components.
+     */
+    public AppFactory() {
+        this(new Sha256Hasher(), new CsvResultWriter(), new CrackTask());
+    }
+
+    /**
+     * Creates the fully-wired DictionaryAttackRunner.
+     */
+    public DictionaryAttackRunner createRunner() {
         LoadService loadService = new LoadService(new UserLoader(), new DictionaryLoader());
-        Hasher hasher = new Sha256Hasher();
         HashLookupBuilder storeHashPwd = new LookupTableBuilder(hasher);
-        ResultWriter writer = new CsvResultWriter();
-        Crack cracker = new CrackTask();
 
         return new DictionaryAttackRunner(loadService, writer, storeHashPwd, cracker);
     }

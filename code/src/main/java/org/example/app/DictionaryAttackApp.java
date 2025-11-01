@@ -19,7 +19,8 @@ public class DictionaryAttackApp {
         }
 
         try {
-            var runner = AppFactory.createRunner();
+            AppFactory factory = new AppFactory();
+            DictionaryAttackRunner runner = factory.createRunner();
             runner.run(args[0], args[1], args[2]);
         } catch (AppException e) {
             System.err.println("Error: " + e.getMessage());
