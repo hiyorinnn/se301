@@ -2,6 +2,7 @@
 
 package org.example.threads;
 
+import java.lang.ScopedValue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -15,6 +16,8 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class ExecutorProvider implements AutoCloseable {
     
+    public static final ScopedValue<ExecutorService> CURRENT_EXECUTOR = ScopedValue.newInstance();
+    
     /**
      * The underlying ExecutorService managed by this provider.
      */
@@ -26,6 +29,9 @@ public abstract class ExecutorProvider implements AutoCloseable {
      * @param executor the ExecutorService to manage
      */
     protected ExecutorProvider(ExecutorService executor) {
+        if (executor == null) {
+            throw new IllegalArgumentException("ExecutorService cannot be null");
+        }
         this.executor = executor;
     }
 
@@ -36,6 +42,20 @@ public abstract class ExecutorProvider implements AutoCloseable {
      */
     public ExecutorService get() {
         return executor;
+    }
+
+    public <T> T executeWithContext(java.util.concurrent.Callable<T> task) throws Exception {
+        return ScopedValue.where(CURRENT_EXECUTOR, executor).call(() -> {
+            try {
+                return task.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public void runWithContext(Runnable task) {
+        ScopedValue.where(CURRENT_EXECUTOR, executor).run(task);
     }
 
     /**

@@ -31,34 +31,4 @@ public class CsvResultWriter implements ResultWriter {
             throw new AppException("Failed to write CSV file: " + path, e);
         }
     }
-
-//    @Override
-//    public void write(String path, Collection<User> users) throws AppException {
-//        Path outputPath = Path.of(path);
-//
-    //        try (BufferedWriter writer = Files.newBufferedWriter(
-//                outputPath,
-//                StandardCharsets.UTF_8,
-//                StandardOpenOption.CREATE,
-//                StandardOpenOption.TRUNCATE_EXISTING)) {
-//
-//            // Write CSV header
-//            writer.write(HEADER);
-//
-//            // Stream and write users line by line (low memory usage)
-//            for (User user : users) {
-//                if (user.isFound()) {
-//                    writer
-//                            .append(user.getUsername()).append(',')
-//                            .append(user.getHashedPassword()).append(',')
-//                            .append(user.getFoundPassword()).append('\n');
-//                }
-//            }
-//
-//            System.out.println("\nCracked password details have been written to " + path);
-//
-//        } catch (IOException e) {
-//            throw new AppException("Failed to write CSV file: " + path, e);
-//        }
-//    }
 }

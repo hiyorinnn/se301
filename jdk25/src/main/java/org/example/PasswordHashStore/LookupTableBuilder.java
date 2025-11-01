@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-
 public class LookupTableBuilder {
     private final Set<String> dictionary;
     private final Hasher hasher;
@@ -22,21 +21,16 @@ public class LookupTableBuilder {
     }
 
     public Map<String, String> buildHashLookupTable() throws AppException {
-        // Use ConcurrentHashMap for thread-safe parallel insertion
         Map<String, String> hashToPlaintext = new ConcurrentHashMap<>();
-
-        // Update Progress
         AtomicLong processed = new AtomicLong(0);
         long total = dictionary.size();
 
         try {
             dictionary.parallelStream().forEach(plaintext -> {
                 try {
-                    // Hash password store into lookup table
                     String hash = hasher.hash(plaintext);
                     hashToPlaintext.put(hash, plaintext);
 
-                    // Update Progress
                     long count = processed.incrementAndGet();
                     if (count % 1000 == 0 || count == total) {
                         double progress = (double) count / total * 100.0;
@@ -51,7 +45,7 @@ public class LookupTableBuilder {
                     System.err.println("\nWarning: Failed to hash password '" + plaintext + "': " + e.getMessage());
                 }
             });
-            System.out.println(); // New line after progress
+            System.out.println();
         } catch (Exception e) {
             throw new AppException("Failed to build hash lookup table: " + e.getMessage(), e);
         }

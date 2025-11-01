@@ -1,10 +1,15 @@
 package org.example.hash;
 
+// JDK 25: 10th incubator Vector API with MemorySegment and VectorShuffle support (JEP 508)
 import jdk.incubator.vector.ByteVector;
 import jdk.incubator.vector.VectorMask;
 import jdk.incubator.vector.VectorOperators;
+import jdk.incubator.vector.VectorShuffle;
 import jdk.incubator.vector.VectorSpecies;
 
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.HexFormat;
 
@@ -22,55 +27,119 @@ final class HexVectorEncoder {
             return HexFormat.of().formatHex(input);
         }
 
-        byte[] out = new byte[input.length * 2];
 
-        int i = 0;
-        int upperBound = input.length - (input.length % SPECIES.length());
-        while (i < upperBound) {
-            ByteVector v = ByteVector.fromArray(SPECIES, input, i);
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment outputSegment = arena.allocate(input.length * 2);
+            
+            MemorySegment inputSegment = MemorySegment.ofArray(input);
 
-            ByteVector hi = v.lanewise(VectorOperators.LSHR, 4).and((byte) 0x0F);
-            ByteVector lo = v.and((byte) 0x0F);
+            int i = 0;
+            int upperBound = input.length - (input.length % SPECIES.length());
+            
+            while (i < upperBound) {
+                ByteVector v = ByteVector.fromMemorySegment(
+                    SPECIES, 
+                    inputSegment, 
+                    i, 
+                    ByteOrder.nativeOrder()
+                );
 
-            hi = mapNibbleToHexAscii(hi);
-            lo = mapNibbleToHexAscii(lo);
+                ByteVector hi = v.lanewise(VectorOperators.LSHR, 4).and((byte) 0x0F);
+                ByteVector lo = v.and((byte) 0x0F);
 
-            byte[] hiArr = new byte[SPECIES.length()];
-            byte[] loArr = new byte[SPECIES.length()];
+                hi = mapNibbleToHexAscii(hi);
+                lo = mapNibbleToHexAscii(lo);
+
+                writeInterleavedToMemorySegment(hi, lo, outputSegment, i);
+
+                i += SPECIES.length();
+            }
+
+            if (i < input.length) {
+                int remaining = input.length - i;
+                VectorMask<Byte> m = VectorMask.fromLong(SPECIES, (1L << remaining) - 1);
+                
+                ByteVector v = ByteVector.fromMemorySegment(
+                    SPECIES, 
+                    inputSegment, 
+                    i, 
+                    ByteOrder.nativeOrder(), 
+                    m
+                );
+                
+                ByteVector hi = v.lanewise(VectorOperators.LSHR, 4).and((byte) 0x0F);
+                ByteVector lo = v.and((byte) 0x0F);
+                hi = mapNibbleToHexAscii(hi);
+                lo = mapNibbleToHexAscii(lo);
+
+                byte[] hiArr = new byte[remaining];
+                byte[] loArr = new byte[remaining];
+                hi.intoArray(hiArr, 0, m);
+                lo.intoArray(loArr, 0, m);
+
+                MemorySegment remainingSegment = outputSegment.asSlice(i * 2);
+                var byteLayout = java.lang.foreign.ValueLayout.JAVA_BYTE;
+                for (int k = 0; k < remaining; k++) {
+                    remainingSegment.set(byteLayout, k * 2, hiArr[k]);
+                    remainingSegment.set(byteLayout, k * 2 + 1, loArr[k]);
+                }
+            }
+
+            byte[] out = new byte[input.length * 2];
+            MemorySegment.copy(outputSegment, 0, MemorySegment.ofArray(out), 0, input.length * 2);
+            return new String(out, StandardCharsets.US_ASCII);
+        }
+    }
+
+    private static void writeInterleavedToMemorySegment(
+            ByteVector hi, ByteVector lo, MemorySegment outputSegment, int offset) {
+        int laneSize = SPECIES.length();
+        
+        try (Arena tempArena = Arena.ofConfined()) {
+
+            MemorySegment tempSegment = tempArena.allocate(laneSize * 2);
+            
+            hi.intoMemorySegment(tempSegment, 0, ByteOrder.nativeOrder());
+            lo.intoMemorySegment(tempSegment, laneSize, ByteOrder.nativeOrder());
+            
+            int[] shuffleIndices = new int[laneSize * 2];
+            for (int i = 0; i < laneSize; i++) {
+                shuffleIndices[i * 2] = i;
+                shuffleIndices[i * 2 + 1] = i + laneSize;
+            }
+            
+            MemorySegment shuffleSegment = tempArena.allocate(shuffleIndices.length * Integer.BYTES);
+            for (int i = 0; i < shuffleIndices.length; i++) {
+                shuffleSegment.setAtIndex(java.lang.foreign.ValueLayout.JAVA_INT, i, shuffleIndices[i]);
+            }
+
+            VectorShuffle<Byte> interleaveShuffle = VectorShuffle.fromArray(
+                SPECIES, 
+                shuffleIndices, 
+                0
+            );
+
+            byte[] hiArr = new byte[laneSize];
+            byte[] loArr = new byte[laneSize];
             hi.intoArray(hiArr, 0);
             lo.intoArray(loArr, 0);
 
-            int outPos = i * 2;
-            for (int k = 0; k < SPECIES.length(); k++) {
-                out[outPos++] = hiArr[k];
-                out[outPos++] = loArr[k];
-            }
+            byte[] combined = new byte[laneSize * 2];
+            System.arraycopy(hiArr, 0, combined, 0, laneSize);
+            System.arraycopy(loArr, 0, combined, laneSize, laneSize);
 
-            i += SPECIES.length();
+            MemorySegment combinedSegment = MemorySegment.ofArray(combined);
+            ByteVector combinedVector = ByteVector.fromMemorySegment(
+                SPECIES,
+                combinedSegment,
+                0,
+                ByteOrder.nativeOrder()
+            );
+            
+            ByteVector shuffled = combinedVector.rearrange(interleaveShuffle);
+
+            shuffled.intoMemorySegment(outputSegment, offset * 2, ByteOrder.nativeOrder());
         }
-
-        if (i < input.length) {
-            int remaining = input.length - i;
-            VectorMask<Byte> m = VectorMask.fromLong(SPECIES, (1L << remaining) - 1);
-            ByteVector v = ByteVector.fromArray(SPECIES, input, i, m);
-            ByteVector hi = v.lanewise(VectorOperators.LSHR, 4).and((byte) 0x0F);
-            ByteVector lo = v.and((byte) 0x0F);
-            hi = mapNibbleToHexAscii(hi);
-            lo = mapNibbleToHexAscii(lo);
-
-            byte[] hiArr = new byte[SPECIES.length()];
-            byte[] loArr = new byte[SPECIES.length()];
-            hi.intoArray(hiArr, 0);
-            lo.intoArray(loArr, 0);
-
-            int outPos = i * 2;
-            for (int k = 0; k < remaining; k++) {
-                out[outPos++] = hiArr[k];
-                out[outPos++] = loArr[k];
-            }
-        }
-
-        return new String(out, StandardCharsets.US_ASCII);
     }
 
     private static ByteVector mapNibbleToHexAscii(ByteVector nibble) {
