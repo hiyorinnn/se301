@@ -1,0 +1,184 @@
+@startuml
+title Dictionary Attack Codebase UML Diagram
+
+class AppFactory {
+  - hasher: Hasher
+  - writer: ResultWriter
+  - cracker: Crack
+  - summaryReporter: SummaryReporter
+  + AppFactory(...)
+  + createRunner(): DictionaryAttackRunner
+}
+
+class DictionaryAttackRunner {
+  - dataLoader: LoadService
+  - hashLookupService: HashLookupService
+  - crackService: CrackService
+  - resultService: ResultService
+  - summaryReporter: SummaryReporter
+  + run(...)
+}
+
+class DictionaryAttackApp {
+  + main(...)
+}
+
+interface Crack {
+  + crack(...)
+}
+
+class CrackTask implements Crack {
+  + crack(...)
+}
+
+class CrackService {
+  - cracker: Crack
+  + crackAll(...)
+}
+
+interface HashLookupBuilder {
+  + buildHashLookupTable(...)
+}
+
+class LookupTableBuilder implements HashLookupBuilder {
+  - hasher: Hasher
+  + buildHashLookupTable(...)
+}
+
+class HashLookupService {
+  - builder: HashLookupBuilder
+  + buildWithProgress(...)
+}
+
+class ResultService {
+  - writer: ResultWriter
+  + write(...)
+}
+
+class LoadService {
+  - loadService: Loading
+  + load(...)
+}
+
+interface ResultWriter {
+  + write(...)
+}
+
+class CsvResultWriter implements ResultWriter {
+  + write(...)
+}
+
+interface SummaryReporter {
+  + printSummary(...)
+}
+
+class ConsoleSummaryReporter implements SummaryReporter {
+  + printSummary(...)
+}
+
+interface ProgressFormatter {
+  + format(...)
+}
+
+class ConsoleProgressFormatter implements ProgressFormatter {
+  + format(...)
+}
+
+class LiveProgressReporter implements Runnable {
+  - counter: AtomicLong
+  - total: long
+  - latch: CountDownLatch
+  - formatter: ProgressFormatter
+  + run()
+}
+
+abstract class ExecutorProvider implements AutoCloseable {
+  # executor: ExecutorService
+  + get(): ExecutorService
+  + close()
+}
+
+class ConfigurableExecutorProvider extends ExecutorProvider {
+  + fixedCpuPool(...)
+  + cachedPool()
+}
+
+class SingleThreadProvider extends ExecutorProvider {
+  + submitTask(...)
+}
+
+interface Loader<T> {
+  + load(...)
+}
+
+class UserLoader implements Loader<User> {
+  + load(...)
+}
+
+class DictionaryLoader implements Loader<String> {
+  + load(...)
+}
+
+class Loading {
+  - userLoader: Loader<User>
+  - dictLoader: Loader<String>
+  + load(...)
+}
+
+interface Hasher {
+  + hash(...)
+}
+
+class Sha256Hasher implements Hasher {
+  + hash(...)
+}
+
+class User {
+  - username: String
+  - hashedPassword: String
+  - found: boolean
+  - foundPassword: String
+  + markFound(...)
+  + isFound(): boolean
+  + getFoundPassword(): String
+}
+
+class AppException extends Exception {
+  + AppException(...)
+}
+
+' Relationships
+AppFactory ..> DictionaryAttackRunner : creates
+DictionaryAttackRunner --> LoadService : uses
+DictionaryAttackRunner --> HashLookupService : uses
+DictionaryAttackRunner --> CrackService : uses
+DictionaryAttackRunner --> ResultService : uses
+DictionaryAttackRunner --> SummaryReporter : uses
+
+LoadService --> Loading : uses
+HashLookupService --> HashLookupBuilder : uses
+HashLookupService --> LiveProgressReporter : uses
+HashLookupService --> SingleThreadProvider : uses
+CrackService --> Crack : uses
+ResultService --> ResultWriter : uses
+
+LookupTableBuilder --> Hasher : uses
+Loading --> Loader : uses
+Loading --> ExecutorProvider : uses
+
+LiveProgressReporter --> ProgressFormatter : uses
+
+ConfigurableExecutorProvider --> ExecutorProvider : extends
+SingleThreadProvider --> ExecutorProvider : extends
+
+UserLoader --> Loader : implements
+DictionaryLoader --> Loader : implements
+
+Sha256Hasher --> Hasher : implements
+CsvResultWriter --> ResultWriter : implements
+ConsoleSummaryReporter --> SummaryReporter : implements
+ConsoleProgressFormatter --> ProgressFormatter : implements
+CrackTask --> Crack : implements
+LookupTableBuilder --> HashLookupBuilder : implements
+
+@enduml
